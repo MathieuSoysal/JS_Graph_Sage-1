@@ -1,8 +1,10 @@
-var Command = function (execute, undo, value, firstAction) {
-    this.execute = execute;
-    this.undo = undo;
-    this.value = value;
-    this.firstAction = firstAction;
+class Command {
+    constructor(execute, undo, value, firstAction) {
+        this.execute = execute;
+        this.undo = undo;
+        this.value = value;
+        this.firstAction = firstAction;
+    }
 }
 
 var SupprNodeCommand = function (value, firstAction = true) {

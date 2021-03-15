@@ -1,109 +1,104 @@
 //Structure that allow to search DOM element only once
 var overlayElements = {
-    _groupListElement : null,
+    _groupListElement: null,
     get groupList() {
-        if(!this._groupListElement)
-        {
+        if (!this._groupListElement) {
             this._groupListElement = document.getElementById("groupList");
         }
         return this._groupListElement;
     },
 
-    _keyPanelContent : null,
-    get keyPanelContent(){
-        if(!this._keyPanelContent)
-        {
+    _keyPanelContent: null,
+    get keyPanelContent() {
+        if (!this._keyPanelContent) {
             this._keyPanelContent = document.getElementById("KeyPanelContent");
         }
         return this._keyPanelContent;
     },
 
-    _propertyPanelContent : null,
-    get propertyPanelContent(){
-        if(!this._propertyPanelContent)
-        {
+    _propertyPanelContent: null,
+    get propertyPanelContent() {
+        if (!this._propertyPanelContent) {
             this._propertyPanelContent = document.getElementById("PropertyPanelContent");
         }
         return this._propertyPanelContent;
     },
 
-    _toolPanelContent : null,
-    get toolPanelContent(){
-        if(!this._toolPanelContent)
-        {
+    _toolPanelContent: null,
+    get toolPanelContent() {
+        if (!this._toolPanelContent) {
             this._toolPanelContent = document.getElementById("ToolPanelContent");
         }
         return this._toolPanelContent;
     },
 
-    _algorithmPanelContent : null,
-    get algorithmPanelContent(){
-        if(!this._algorithmPanelContent)
-        {
+    _algorithmPanelContent: null,
+    get algorithmPanelContent() {
+        if (!this._algorithmPanelContent) {
             this._algorithmPanelContent = document.getElementById("AlgorithmPanelContent");
         }
         return this._algorithmPanelContent;
     },
 
-    _promptResultElement : null,
-    get promptResult(){
-        if(!this._promptResultElement){
+    _promptResultElement: null,
+    get promptResult() {
+        if (!this._promptResultElement) {
             this._promptResultElement = document.getElementById("PromptResult");
         }
         return this._promptResultElement;
     },
 
-    _directedRelatedElements : null,
-    get directedRelated(){
-        if(!this._directedRelatedElements){
+    _directedRelatedElements: null,
+    get directedRelated() {
+        if (!this._directedRelatedElements) {
             this._directedRelatedElements = document.getElementsByClassName("DirectedRelated");
         }
         return this._directedRelatedElements;
     },
 
-    _scrollTextElement : null,
-    get scrollText(){
-        if(!this._scrollTextElement){
+    _scrollTextElement: null,
+    get scrollText() {
+        if (!this._scrollTextElement) {
             this._scrollTextElement = document.getElementsByClassName("scroll")[0];
         }
         return this._scrollTextElement;
     },
 
-    _radiusLabelElement : null,
-    get radiusLabel(){
-        if(!this._radiusLabelElement){
+    _radiusLabelElement: null,
+    get radiusLabel() {
+        if (!this._radiusLabelElement) {
             this._radiusLabelElement = document.getElementById("radiusLabel");
         }
         return this._radiusLabelElement;
     },
 
-    _diameterLabelElement : null,
-    get diameterLabel(){
-        if(!this._diameterLabelElement){
+    _diameterLabelElement: null,
+    get diameterLabel() {
+        if (!this._diameterLabelElement) {
             this._diameterLabelElement = document.getElementById("diameterLabel");
         }
         return this._diameterLabelElement;
     },
 
-    _regularLabelElement : null,
-    get regularLabel(){
-        if(!this._regularLabelElement){
+    _regularLabelElement: null,
+    get regularLabel() {
+        if (!this._regularLabelElement) {
             this._regularLabelElement = document.getElementById("regularLabel");
         }
         return this._regularLabelElement;
     },
 
-    _planarLabelElement : null,
-    get planarLabel(){
-        if(!this._planarLabelElement){
+    _planarLabelElement: null,
+    get planarLabel() {
+        if (!this._planarLabelElement) {
             this._planarLabelElement = document.getElementById("planarLabel");
         }
         return this._planarLabelElement;
     },
 
-    _bipartiteLabelElement : null,
-    get bipartiteLabel(){
-        if(!this._bipartiteLabelElement){
+    _bipartiteLabelElement: null,
+    get bipartiteLabel() {
+        if (!this._bipartiteLabelElement) {
             this._bipartiteLabelElement = document.getElementById("bipartiteLabel");
         }
         return this._bipartiteLabelElement;
@@ -114,18 +109,18 @@ var overlayElements = {
 function prettyDate2() {
     var date = new Date();
     return date.toLocaleTimeString(navigator.language, {
-      hour: '2-digit',
-      minute:'2-digit'
-    })+" ";
+        hour: '2-digit',
+        minute: '2-digit'
+    }) + " ";
 }
 
-function CustomWarn(string, display = true){
-    console.warn(prettyDate2()+" "+string);
+function CustomWarn(string, display = true) {
+    console.warn(prettyDate2() + " " + string);
     if (display) {
-        let newLine = prettyDate2()+" : "+string;
+        let newLine = prettyDate2() + " : " + string;
         let logs = overlayElements.scrollText.innerHTML.split(/<br(?: \/)?>/);
         let lastLog = logs[logs.length - 2];
-        if (lastLog != newLine){
+        if (lastLog != newLine) {
             overlayElements.scrollText.innerHTML += newLine + "<br>"
         }
 
@@ -133,7 +128,7 @@ function CustomWarn(string, display = true){
     }
 }
 
-function SetProperties(radius,diameter,regular,planar,bipartite){
+function SetProperties(radius, diameter, regular, planar, bipartite) {
     overlayElements.radiusLabel.innerHTML = radius;
     overlayElements.diameterLabel.innerHTML = diameter;
     overlayElements.regularLabel.innerHTML = regular;
@@ -141,69 +136,67 @@ function SetProperties(radius,diameter,regular,planar,bipartite){
     overlayElements.bipartiteLabel.innerHTML = bipartite;
 }
 
-function InitInterface(){
+function InitInterface() {
     UpdateDirectedRelatedElements();
 }
 
-function DisplayElement(element, show){
-    element.style.display = (show)? "":"none";
+function DisplayElement(element, show) {
+    element.style.display = (show) ? "" : "none";
 }
 
-function UpdateDirectedRelatedElements(){
+function UpdateDirectedRelatedElements() {
     for (let index = 0; index < overlayElements.directedRelated.length; index++) {
-        DisplayElement(overlayElements.directedRelated[index],isDirected);
+        DisplayElement(overlayElements.directedRelated[index], isDirected);
     }
 }
 
 
-function EmptyGroupList(){
-    for (let index = overlayElements.groupList.childElementCount - 2; index >= 0 ; index--) {
+function EmptyGroupList() {
+    for (let index = overlayElements.groupList.childElementCount - 2; index >= 0; index--) {
         overlayElements.groupList.removeChild(overlayElements.groupList.childNodes[index]);
-    }   
+    }
 }
 
-function PopulateGroupList(){
+function PopulateGroupList() {
     EmptyGroupList();
-    for(var i = 0; i < groupList.length; i++) {
+    for (var i = 0; i < groupList.length; i++) {
         CreateGroupElement(groupList[i]);
     }
 
     overlayElements.groupList.selectedIndex = 0;
 }
 
-function ChangeSelectedGroup(){
-    if(overlayElements.groupList.selectedIndex == overlayElements.groupList.childElementCount - 1)
-    {
-        if(!TryAddNewGroup()){
+function ChangeSelectedGroup() {
+    if (overlayElements.groupList.selectedIndex == overlayElements.groupList.childElementCount - 1) {
+        if (!TryAddNewGroup()) {
             overlayElements.groupList.selectedIndex = currentGroupIndex;
         }
     }
-    else
-    {
+    else {
         SetCurrentGroup();
     }
 }
 
-function SetCurrentGroup(){
+function SetCurrentGroup() {
     currentGroupIndex = overlayElements.groupList.selectedIndex;
-    overlayElements.groupList.style.backgroundColor = customColorScale(currentGroupIndex); 
+    overlayElements.groupList.style.backgroundColor = customColorScale(currentGroupIndex);
 }
 
-function CreateGroupElement(name){
+function CreateGroupElement(name) {
     var newElem = document.createElement("option");
     newElem.textContent = name;
     newElem.value = name;
-    
+
     let list = overlayElements.groupList;
     let lastIndex = list.childElementCount - 1;
     newElem.style.backgroundColor = customColorScale(lastIndex);
-    list.insertBefore(newElem,list.childNodes[lastIndex]);
+    list.insertBefore(newElem, list.childNodes[lastIndex]);
 
     overlayElements.groupList.selectedIndex = lastIndex;
     SetCurrentGroup();
 }
 
-function TryAddNewGroup(){
+function TryAddNewGroup() {
     var newName = prompt("Please enter the group name:", "New Group");
     if (newName == null || newName == "") {
         window.alert("Invalid name, no new group created.");
@@ -213,9 +206,9 @@ function TryAddNewGroup(){
         return false;
     }
     else {
-      groupList.push(newName);
-      CreateGroupElement(newName);
-      return true;
+        groupList.push(newName);
+        CreateGroupElement(newName);
+        return true;
     }
 }
 
@@ -231,7 +224,7 @@ function KeyboardEventInit() {
                 //A for Add
                 result = [AddNewNode(), "Add new node"];
                 break;
-            case 67 :
+            case 67:
                 //C for color
                 SetGroupOfSelection();
                 break;
@@ -247,15 +240,15 @@ function KeyboardEventInit() {
                 //F for Freeze
                 FreezeGraph();
                 break;
-            case 73 :
+            case 73:
                 //I for invert
                 result = [TryInvertEdge(), "Invert selected edges orientation"];
                 break;
-            case 76 :
+            case 76:
                 //L for Loops
                 result = [AddLoopOnSelection(), "Add loop on selected nodes"];
                 break;
-            case 78 : 
+            case 78:
                 //N for Rename
                 result = [TryRenameElement(), "Relabel hovered element"];
                 break;
@@ -280,51 +273,46 @@ function KeyboardEventInit() {
                 console.log("Keycode : " + key.keyCode);
                 break;
         }
-        if(result){
+        if (result) {
             CheckUserAction(result);
         }
     }
 }
 
-function CheckUserAction(result){
-    if(result[0] == true)
-    {
+function CheckUserAction(result) {
+    if (result[0] == true) {
         UpdateGraphProperties(result[1]);
     }
 }
 
 
 
-function TryRenameElement(){
-    if(currentObject)
-    {
+function TryRenameElement() {
+    if (currentObject) {
         newName = AskForNewName();
         result = CheckNewName(newName, currentObject.type);
 
-        if(result)
-        {
+        if (result) {
             let vr = new ValueRegisterer(currentObject.data.name, newName, currentObject);
             MyManager.Execute(new ChangeNameCommand(vr));
             return true;
         }
-        else 
-        {
+        else {
             CustomWarn("This name is already taken");
         }
     }
-    else
-    {
+    else {
         CustomWarn("Nothing to rename");
     }
     return false;
 }
 
-function AskForNewName(){
+function AskForNewName() {
     result = prompt("How do you want to rename it ?", "New Name");
     return result;
 }
 
-function CheckNewName(name, type){
+function CheckNewName(name, type) {
     list = null;
     switch (type) {
         case NodeType:
@@ -354,21 +342,19 @@ function TryInvertEdge() {
 }
 
 
-function CheckCurrentObjectType(types)
-{
+function CheckCurrentObjectType(types) {
     let result = (currentObject != null);
-    if(result){
+    if (result) {
         result = types.includes(currentObject.type);
     }
     return result;
 }
 
-function updateScroll(){
+function updateScroll() {
     overlayElements.scrollText.parentNode.style.display = "inherit";
     overlayElements.scrollText.scrollTop = overlayElements.scrollText.scrollHeight;
 }
 
-function StringToObject(string)
-{
+function StringToObject(string) {
     return eval('(' + string + ')');
 }

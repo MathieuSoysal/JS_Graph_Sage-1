@@ -6,29 +6,29 @@ class TestGroup {
 }
 
 const TestList = [new TestGroup("Test AddNode()", [TestAddCorrectNumberOfNode, TestAddWantedNode, TestAddNodeDontModifyOthersElements]),
-    new TestGroup("Test RemoveNode()", [TestRemoveCorrectNumberOfNode, TestRemoveWantedNode, TestRemoveNodeDontModifyOthersElements]),
-    new TestGroup("Test AddLoop()", [TestAddCorrectNumberOfLoop, TestAddWantedLoop, TestAddLoopDontModifyOtherElements]),
-    new TestGroup("Test RemoveLoop()", [TestRemoveCorrectNumberOfLoop, TestRemoveWantedLoop, TestRemoveLoopDontModifyOthersElements]),
-    new TestGroup("Test AddEdge()", [TestAddCorrectNumberOfLink, TestAddWantedLink, TestAddLinkDontModifyOthersElements]),
-    new TestGroup("Test RemoveEdge()", [TestRemoveCorrectNumberOfLink, TestRemoveWantedLink, TestRemoveLinkDontModifyOthersElements]),
-    new TestGroup("Test Undo()", [TestUndoInvertEdgeDirection, TestUndoSetName, TestUndoChangeGroup, TestUndoAddNode, 
-        TestUndoAddEdge, TestUndoAddLoop, TestUndoRemoveNode, TestUndoRemoveLink, TestUndoRemoveLoop, TestUndoMove,TestUndoSubdivide]),
-    new TestGroup("Test MoveNode()", [TestMoveOnWantedPosition]),
-    new TestGroup("Test SelectElement()", [TestSelectNode, TestSelectLink, TestSelectLoop, TestUnselectNode]),
-    new TestGroup("Test Subdivide Edge()", [TestSubdivideEdgeElementCount,TestSubdivideEdgeCorrespondingElement,TestSubdivideEdgeOnSelectionCorrespondingElement]),
-    new TestGroup("Test GetGraphFromHTML()", [TestInitialGraphIsntModifyByAddNode, TestInitialGraphIsntModifyByAddLink, TestInitialGraphIsntModifyByAddLoop, 
-        TestInitialGraphIsntModifyByRemoveNode, TestInitialGraphIsntModifyByRemoveEdge, TestInitialGraphIsntModifyByRemoveLoop, TestInitialGraphIsntModifyByMovements, 
-        TestInitialGraphIsntModifyBySelection]),
-    new TestGroup("Test PretyfyJSON()", [TestFinalGraphCorrespondAfterAddNode, TestFinalGraphCorrespondAfterAddLink, TestFinalGraphCorrespondAfterAddLoop, 
-        TestFinalGraphCorrespondAfterRemoveNode, TestFinalGraphCorrespondAfterRemoveEdge, TestFinalGraphCorrespondAfterRemoveLoop, TestFinalGraphCorrespondAfterMove, 
-        TestFinalGraphCorrespondAfterSelection, TestFinalGraphInverseYCoordinates, TestFinalGraphSimplifyTargetSourceOfEdges, TestFinalGraphSimplifyTargetSourceOfLoops]),
-    new TestGroup("Test ChangeGroup()",[TestChangeToCorrectGroup]),
-    new TestGroup("Test SetName()",[TestNodeNameIsChange,TestEdgeNameIsChange,TestLoopNameIsChange,TestChangeToExistingName]),
-    new TestGroup("Test InvertDirection()",[TestDirectionIsInverted]),
+new TestGroup("Test RemoveNode()", [TestRemoveCorrectNumberOfNode, TestRemoveWantedNode, TestRemoveNodeDontModifyOthersElements]),
+new TestGroup("Test AddLoop()", [TestAddCorrectNumberOfLoop, TestAddWantedLoop, TestAddLoopDontModifyOtherElements]),
+new TestGroup("Test RemoveLoop()", [TestRemoveCorrectNumberOfLoop, TestRemoveWantedLoop, TestRemoveLoopDontModifyOthersElements]),
+new TestGroup("Test AddEdge()", [TestAddCorrectNumberOfLink, TestAddWantedLink, TestAddLinkDontModifyOthersElements]),
+new TestGroup("Test RemoveEdge()", [TestRemoveCorrectNumberOfLink, TestRemoveWantedLink, TestRemoveLinkDontModifyOthersElements]),
+new TestGroup("Test Undo()", [TestUndoInvertEdgeDirection, TestUndoSetName, TestUndoChangeGroup, TestUndoAddNode,
+    TestUndoAddEdge, TestUndoAddLoop, TestUndoRemoveNode, TestUndoRemoveLink, TestUndoRemoveLoop, TestUndoMove, TestUndoSubdivide]),
+new TestGroup("Test MoveNode()", [TestMoveOnWantedPosition]),
+new TestGroup("Test SelectElement()", [TestSelectNode, TestSelectLink, TestSelectLoop, TestUnselectNode]),
+new TestGroup("Test Subdivide Edge()", [TestSubdivideEdgeElementCount, TestSubdivideEdgeCorrespondingElement, TestSubdivideEdgeOnSelectionCorrespondingElement]),
+new TestGroup("Test GetGraphFromHTML()", [TestInitialGraphIsntModifyByAddNode, TestInitialGraphIsntModifyByAddLink, TestInitialGraphIsntModifyByAddLoop,
+    TestInitialGraphIsntModifyByRemoveNode, TestInitialGraphIsntModifyByRemoveEdge, TestInitialGraphIsntModifyByRemoveLoop, TestInitialGraphIsntModifyByMovements,
+    TestInitialGraphIsntModifyBySelection]),
+new TestGroup("Test PretyfyJSON()", [TestFinalGraphCorrespondAfterAddNode, TestFinalGraphCorrespondAfterAddLink, TestFinalGraphCorrespondAfterAddLoop,
+    TestFinalGraphCorrespondAfterRemoveNode, TestFinalGraphCorrespondAfterRemoveEdge, TestFinalGraphCorrespondAfterRemoveLoop, TestFinalGraphCorrespondAfterMove,
+    TestFinalGraphCorrespondAfterSelection, TestFinalGraphInverseYCoordinates, TestFinalGraphSimplifyTargetSourceOfEdges, TestFinalGraphSimplifyTargetSourceOfLoops]),
+new TestGroup("Test ChangeGroup()", [TestChangeToCorrectGroup]),
+new TestGroup("Test SetName()", [TestNodeNameIsChange, TestEdgeNameIsChange, TestLoopNameIsChange, TestChangeToExistingName]),
+new TestGroup("Test InvertDirection()", [TestDirectionIsInverted]),
 ];
 
 function testOutput(expr, message) {
-    (expr) ? console.log('%c' + message, 'color: green'): console.error(message);
+    (expr) ? console.log('%c' + message, 'color: green') : console.error(message);
 }
 
 function LaunchAllTest() {
@@ -48,58 +48,56 @@ function LaunchAllTest() {
     console.log("%c" + prettyDate2() + "Test passed : " + passTest + "/" + (passTest + failedTest), 'font-weight: bold');
 }
 
-function BeforeAllTest(){
-    while(graphJSON.nodes.length < 3){
+function BeforeAllTest() {
+    while (graphJSON.nodes.length < 3) {
         let newNode = CreateNode();
         MyManager.Execute(new AddNodeCommand(newNode));
     }
-    while(graphJSON.links.length < 3){
+    while (graphJSON.links.length < 3) {
         let newElement = CreateEdge(graphJSON.nodes[0], graphJSON.nodes[1]);
         MyManager.Execute(new AddEdgeCommand(newElement));
     }
-    while(graphJSON.loops.length < 3){
+    while (graphJSON.loops.length < 3) {
         let newLoop = CreateLoop(graphJSON.nodes[0]);
         MyManager.Execute(new AddLoopCommand(newLoop));
     }
 }
 
-function TestUndoInvertEdgeDirection()
-{
+function TestUndoInvertEdgeDirection() {
     //Setup
-    let newValue = [graphJSON.links[0].target,graphJSON.links[0].source];
-    let oldValue = [graphJSON.links[0].source,graphJSON.links[0].target];
-    let vr = new ValueRegisterer(oldValue, newValue, new Element(graphJSON.links[0],EdgeType));
+    let newValue = [graphJSON.links[0].target, graphJSON.links[0].source];
+    let oldValue = [graphJSON.links[0].source, graphJSON.links[0].target];
+    let vr = new ValueRegisterer(oldValue, newValue, new Element(graphJSON.links[0], EdgeType));
 
     MyManager.Execute(new InvertDirectionCommand(vr));
 
     MyManager.Undo();
 
-    let expr =  graphJSON.links[0].source == oldValue[0] && graphJSON.links[0].target == oldValue[1];
+    let expr = graphJSON.links[0].source == oldValue[0] && graphJSON.links[0].target == oldValue[1];
 
     testOutput(expr, "The edge direction has been revert correctly");
 
     return expr;
 }
 
-function TestDirectionIsInverted(){
+function TestDirectionIsInverted() {
     //Setup
-    let newValue = [graphJSON.links[0].target,graphJSON.links[0].source];
-    let vr = new ValueRegisterer([graphJSON.links[0].source,graphJSON.links[0].target], newValue, new Element(graphJSON.links[0],EdgeType));
+    let newValue = [graphJSON.links[0].target, graphJSON.links[0].source];
+    let vr = new ValueRegisterer([graphJSON.links[0].source, graphJSON.links[0].target], newValue, new Element(graphJSON.links[0], EdgeType));
 
     MyManager.Execute(new InvertDirectionCommand(vr));
 
-    let expr =  graphJSON.links[0].source == newValue[0] && graphJSON.links[0].target == newValue[1];
+    let expr = graphJSON.links[0].source == newValue[0] && graphJSON.links[0].target == newValue[1];
     testOutput(expr, "The edge direction has been correctly inverted");
 
     return expr;
 }
 
-function TestUndoSetName()
-{
+function TestUndoSetName() {
     //Setup
     let oldName = graphJSON.nodes[0].name;
     let newName = "test1";
-    let vr = new ValueRegisterer(graphJSON.nodes[0].name, newName, new Element(graphJSON.nodes[0],NodeType));
+    let vr = new ValueRegisterer(graphJSON.nodes[0].name, newName, new Element(graphJSON.nodes[0], NodeType));
     MyManager.Execute(new ChangeNameCommand(vr));
 
     MyManager.Undo();
@@ -112,56 +110,55 @@ function TestUndoSetName()
 }
 
 
-function TestChangeToExistingName()
-{
-   //Setup
-   let newName = "test2";
-   let vr = new ValueRegisterer(graphJSON.links[0].name, newName, new Element(graphJSON.links[0],EdgeType));
-   MyManager.Execute(new ChangeNameCommand(vr));
+function TestChangeToExistingName() {
+    //Setup
+    let newName = "test2";
+    let vr = new ValueRegisterer(graphJSON.links[0].name, newName, new Element(graphJSON.links[0], EdgeType));
+    MyManager.Execute(new ChangeNameCommand(vr));
 
-   let expr = !CheckNewName(newName, EdgeType);
+    let expr = !CheckNewName(newName, EdgeType);
 
-   testOutput(expr, "The name hasn't change");
+    testOutput(expr, "The name hasn't change");
 
-   return expr;
+    return expr;
 }
 
-function TestNodeNameIsChange(){
+function TestNodeNameIsChange() {
     //Setup
     let newName = "test3";
-    let vr = new ValueRegisterer(graphJSON.nodes[0].name, newName, new Element(graphJSON.nodes[0],NodeType));
+    let vr = new ValueRegisterer(graphJSON.nodes[0].name, newName, new Element(graphJSON.nodes[0], NodeType));
 
     MyManager.Execute(new ChangeNameCommand(vr));
 
-    let expr =  graphJSON.nodes[0].name == newName;
+    let expr = graphJSON.nodes[0].name == newName;
 
     testOutput(expr, "The node name has been correctly change");
 
     return expr;
 }
 
-function TestEdgeNameIsChange(){
+function TestEdgeNameIsChange() {
     //Setup
     let newName = "test4";
-    let vr = new ValueRegisterer(graphJSON.links[0].name, newName, new Element(graphJSON.links[0],EdgeType));
+    let vr = new ValueRegisterer(graphJSON.links[0].name, newName, new Element(graphJSON.links[0], EdgeType));
 
     MyManager.Execute(new ChangeNameCommand(vr));
 
-    let expr =  graphJSON.links[0].name == newName;
+    let expr = graphJSON.links[0].name == newName;
 
     testOutput(expr, "The edge name has been correctly change");
 
     return expr;
 }
 
-function TestLoopNameIsChange(){
+function TestLoopNameIsChange() {
     //Setup
     let newName = "test5";
-    let vr = new ValueRegisterer(graphJSON.loops[0].name, newName, new Element(graphJSON.loops[0],LoopType));
+    let vr = new ValueRegisterer(graphJSON.loops[0].name, newName, new Element(graphJSON.loops[0], LoopType));
 
     MyManager.Execute(new ChangeNameCommand(vr));
 
-    let expr =  graphJSON.loops[0].name == newName;
+    let expr = graphJSON.loops[0].name == newName;
 
     testOutput(expr, "The loop name has been correctly change");
 
@@ -178,34 +175,34 @@ function TestUndoChangeGroup() {
     let oldGroup = graphJSON.nodes[0].group;
 
     MyManager.Execute(new ChangeGroupCommand(new ValueRegisterer(
-        graphJSON.nodes[0].group, 
-        newGroupName, 
-        new Element(graphJSON.nodes[0],NodeType))));
+        graphJSON.nodes[0].group,
+        newGroupName,
+        new Element(graphJSON.nodes[0], NodeType))));
     MyManager.Undo();
 
-    let expr =  graphJSON.nodes[0].group == oldGroup;
+    let expr = graphJSON.nodes[0].group == oldGroup;
 
     testOutput(expr, "Group changement has been revert correctly");
 
     return expr;
 }
 
-function TestChangeToCorrectGroup(){
+function TestChangeToCorrectGroup() {
     let currentGroup = groupList[currentGroupIndex];
 
     MyManager.Execute(
         new ChangeGroupCommand(
             new ValueRegisterer(
-                graphJSON.nodes[0].group, 
-                currentGroup, 
-                new Element(graphJSON.nodes[0],NodeType)
+                graphJSON.nodes[0].group,
+                currentGroup,
+                new Element(graphJSON.nodes[0], NodeType)
             )
         )
     );
 
-    let expr =  graphJSON.nodes[0].group == currentGroup;
+    let expr = graphJSON.nodes[0].group == currentGroup;
 
-    testOutput(expr,"Node change to the correct group");
+    testOutput(expr, "Node change to the correct group");
 
     return expr;
 }
@@ -424,7 +421,7 @@ function TestInitialGraphIsntModifyByRemoveLoop() {
     //Setup
     let oldGraph = GetGraphFromHTML();
     let elem = new Element(graphJSON.loops[0], LoopType);
-    
+
     RemoveElementFromGraph(elem);
     let newGraph = GetGraphFromHTML();
 
@@ -439,9 +436,9 @@ function TestInitialGraphIsntModifyByMovements() {
     //Setup
     let oldGraph = GetGraphFromHTML();
     let pos = new ValueRegisterer(
-        [graphJSON.nodes[0].px, graphJSON.nodes[0].py], 
-        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1], 
-        new Element(graphJSON.nodes[0],NodeType))
+        [graphJSON.nodes[0].px, graphJSON.nodes[0].py],
+        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1],
+        new Element(graphJSON.nodes[0], NodeType))
     MyManager.Execute(new MoveNodeCommand(pos));
     let newGraph = GetGraphFromHTML();
 
@@ -612,9 +609,9 @@ function TestUndoRemoveLoop() {
 function TestUndoMove() {
     //Setup
     let pos = new ValueRegisterer(
-        [graphJSON.nodes[0].px, graphJSON.nodes[0].py], 
-        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1], 
-        new Element(graphJSON.nodes[0],NodeType))
+        [graphJSON.nodes[0].px, graphJSON.nodes[0].py],
+        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1],
+        new Element(graphJSON.nodes[0], NodeType))
     MyManager.Execute(new MoveNodeCommand(pos));
     MyManager.Undo()
 
@@ -640,9 +637,9 @@ function TestUndoSubdivide() {
 function TestMoveOnWantedPosition() {
     //Setup
     let pos = new ValueRegisterer(
-        [graphJSON.nodes[0].px, graphJSON.nodes[0].py], 
-        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1], 
-        new Element(graphJSON.nodes[0],NodeType))
+        [graphJSON.nodes[0].px, graphJSON.nodes[0].py],
+        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1],
+        new Element(graphJSON.nodes[0], NodeType))
     MyManager.Execute(new MoveNodeCommand(pos));
 
     let expr = graphJSON.nodes[0].px == pos.newValue[0] && graphJSON.nodes[0].py == pos.newValue[1];
@@ -782,9 +779,9 @@ function TestFinalGraphCorrespondAfterMove() {
     //Setup
     let oldGraph = JSON.parse(PrettifyJSON());
     let pos = new ValueRegisterer(
-        [graphJSON.nodes[0].px, graphJSON.nodes[0].py], 
-        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1], 
-        new Element(graphJSON.nodes[0],NodeType))
+        [graphJSON.nodes[0].px, graphJSON.nodes[0].py],
+        [graphJSON.nodes[0].px + 1, graphJSON.nodes[0].py + 1],
+        new Element(graphJSON.nodes[0], NodeType))
     MyManager.Execute(new MoveNodeCommand(pos));
     let newGraph = JSON.parse(PrettifyJSON());
 
@@ -879,7 +876,7 @@ function TestSubdivideEdgeOnSelectionCorrespondingElement() {
     //Setup
     SelectElement(new Element(graphJSON.links[0], EdgeType));
     SubdivideEdgeOnSelection();
-    
+
     let expr = true;
     GetCurrentSelection().edges.forEach(e => {
         let expr = graphJSON.links.includes(e) == false && expr;

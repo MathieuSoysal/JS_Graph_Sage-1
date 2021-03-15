@@ -12,45 +12,42 @@ function InitWebSocketConnection() {
   // Connect to Web Socket
   webSocket = new WebSocket("ws://localhost:9001/");
   // Set event handlers.
-  webSocket.onopen = function() 
-  {
+  webSocket.onopen = function () {
     UpdateGraphProperties();
   };
-  
-  webSocket.onmessage = function(message) 
-  {
+
+  webSocket.onmessage = function (message) {
     TreatResponse(StringToObject(message.data));
   };
-  
-  webSocket.onclose = function() {};
 
-  webSocket.onerror = function(error) 
-  {
+  webSocket.onclose = function () { };
+
+  webSocket.onerror = function (error) {
     CustomWarn("Fail to connect with SageMath");
   };
 }
 
-function TreatResponse(response){
+function TreatResponse(response) {
   switch (response.request) {
     case propertiesRequestParameter:
-      SetProperties(response.result[0],response.result[1],response.result[2],response.result[3],response.result[4]);
+      SetProperties(response.result[0], response.result[1], response.result[2], response.result[3], response.result[4]);
       break;
-    case vertexColoringRequestParameter :
+    case vertexColoringRequestParameter:
       SetNodesColoration(response.result);
       break;
-    case edgeColoringRequestParameter :
+    case edgeColoringRequestParameter:
       SetLinksColoration(response.result)
       break;
-    case strongOrientationRequestParameter :
+    case strongOrientationRequestParameter:
       InitNewGraph(StringToObject(response.result));
       break;
-    case randomOrientationRequestParameter :
+    case randomOrientationRequestParameter:
       InitNewGraph(StringToObject(response.result));
       break;
-    case convertGraphParameter :
-      CustomWarn("Graph : "+ response.result +" open in new Window");
+    case convertGraphParameter:
+      CustomWarn("Graph : " + response.result + " open in new Window");
       break;
-    case closeConnectionParameter :
+    case closeConnectionParameter:
       webSocket.close();
       break;
     default:
@@ -59,30 +56,29 @@ function TreatResponse(response){
   }
 }
 
-function RequestVertexColoring(){
+function RequestVertexColoring() {
   SubmitMessage(vertexColoringRequestParameter);
 }
 
-function RequestEdgeColoring(){
+function RequestEdgeColoring() {
   SubmitMessage(edgeColoringRequestParameter);
 }
 
-function RequestStrongOrientation()
-{
+function RequestStrongOrientation() {
   SubmitMessage(strongOrientationRequestParameter);
 }
 
-function RequestRandomOrientation(){
+function RequestRandomOrientation() {
   SubmitMessage(randomOrientationRequestParameter);
 }
 
 
-function RequestConvertGraph(){
+function RequestConvertGraph() {
   SubmitMessage(convertGraphParameter);
 }
 
 
-function SubmitMessage(parameter,message = "") {
+function SubmitMessage(parameter, message = "") {
   graphJSON.parameter = parameter;
   graphJSON.message = message;
   var prettyJSON = PrettifyJSON();
