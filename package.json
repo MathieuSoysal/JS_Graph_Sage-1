@@ -4,7 +4,9 @@
   "description": "Interface graphique permettant de manipuler des graphes via SageMath.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-dev": "webpack --mode=development",
+    "build-prod": "webpack --mode=production",
+    "test": "jest --reporters=default --reporters=jest-junit --collect-coverage"
   },
   "repository": {
     "type": "git",
