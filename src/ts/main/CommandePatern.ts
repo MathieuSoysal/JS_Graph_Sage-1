@@ -1,106 +1,141 @@
+import { GraphCustom } from './graph-gestionnaire/GraphCustom';
+import { CustomWarn as customWarn } from './InterfaceAndMisc';
+import { Node, Edge, Loop, ValueRegisterer } from './graph-gestionnaire/Types';
 class Command {
-    execute: any;
-    undo: any;
-    value: any;
-    firstAction: boolean;
+    // #region Properties (4)
 
-    constructor(execute, undo, value, firstAction: boolean) {
+    public execute: (p: any) => void;
+    public firstAction: boolean;
+    public undo: (p: any) => void;
+    public value: any;
+
+    // #endregion Properties (4)
+
+    // #region Constructors (1)
+
+    constructor(execute: (p: any) => void, undo: (p: any) => void, value: any, firstAction: boolean) {
         this.execute = execute;
         this.undo = undo;
         this.value = value;
         this.firstAction = firstAction;
     }
+
+    // #endregion Constructors (1)
 }
 
-var SupprNodeCommand = function (value, firstAction = true) {
-    return new Command(RemoveNode, AddNode, value, firstAction);
-};
+// TODO: Faire un enum Commands.SuppNode
+// Enum ne marchera peut-être pas, faire des méthode generateur public
 
-var SupprEdgeCommand = function (value, firstAction = true) {
-    return new Command(RemoveEdge, AddEdge, value, firstAction);
-};
+export class CommandsRepository {
+    // #region Properties (10)
 
-var SupprLoopCommand = function (value, firstAction = true) {
-    return new Command(RemoveLoop, AddLoop, value, firstAction);
-};
+    public static readonly AddEdgeCommand = (graph: GraphCustom, value: Edge, firstAction = true) => {
+        return new Command((e: Edge) => graph.addEdge(e), (e: Edge) => graph.removeEdge(e), value, firstAction);
+    };
 
-var AddNodeCommand = function (value, firstAction = true) {
-    return new Command(AddNode, RemoveNode, value, firstAction);
-};
+    public static readonly AddLoopCommand = (graph: GraphCustom, value: Loop, firstAction = true) => {
+        return new Command((l: Loop) => graph.addLoop(l), (l: Loop) => graph.removeLoop(l), value, firstAction);
+    };
 
-var AddEdgeCommand = function (value, firstAction = true) {
-    return new Command(AddEdge, RemoveEdge, value, firstAction);
-};
+    public static readonly AddNodeCommand = (graph: GraphCustom, value: Node, firstAction = true) => {
+        return new Command(graph.addNode, graph.removeNode, value, firstAction);
+    };
 
-var AddLoopCommand = function (value, firstAction = true) {
-    return new Command(AddLoop, RemoveLoop, value, firstAction);
-};
+    public static readonly ChangeGroupCommand = (graph: GraphCustom, value: ValueRegisterer, firstAction = true) => {
+        return new Command(graph.setGroupElement, graph.setGroupElement, value, firstAction);
+    };
 
-var ChangeGroupCommand = function (value, firstAction = true) {
-    return new Command(SetGroupElement, SetGroupElement, value, firstAction);
-};
+    public static readonly ChangeNameCommand = (graph: GraphCustom, value: ValueRegisterer, firstAction = true) => {
+        return new Command(graph.setElementName, graph.setElementName, value, firstAction);
+    };
 
-var ChangeNameCommand = function (value, firstAction = true) {
-    return new Command(SetElementName, SetElementName, value, firstAction);
-};
+    public static readonly InvertDirectionCommand = (graph: GraphCustom, edge: Edge, firstAction = true) => {
+        let value = new ValueRegisterer([edge.source, edge.target], [edge.target, edge.source], edge);
+        return new Command(graph.setLinkDirection, graph.setLinkDirection, value, firstAction);
+    };
 
-var InvertDirectionCommand = function (value, firstAction = true) {
-    return new Command(SetLinkDirection, SetLinkDirection, value, firstAction);
-};
-var MoveNodeCommand = function (value, firstAction = true) {
-    return new Command(SetNewPosition, SetOldPosition, value, firstAction);
-};
+    public static readonly MoveNodeCommand = (graph: GraphCustom, value: any, firstAction = true) => {
+        return new Command(graph.setNewPosition, graph.setOldPosition, value, firstAction);
+    };
 
-class CommandManager {
-    commandStack: Command[];
-    revertedCommandStack: Command[];
+    public static readonly SupprEdgeCommand = (graph: GraphCustom, value: Edge, firstAction = true) => {
+        return new Command(graph.removeEdge, graph.addEdge, value, firstAction);
+    };
+
+    public static readonly SupprLoopCommand = (graph: GraphCustom, value: Loop, firstAction = true) => {
+        return new Command(graph.removeLoop, graph.addLoop, value, firstAction);
+    };
+
+    public static readonly SupprNodeCommand = (graph: GraphCustom, value: Node, firstAction = true) => {
+        return new Command(graph.removeNode, graph.addNode, value, firstAction);
+    };
+
+    // #endregion Properties (10)
+}
+
+export class CommandManager {
+    // #region Properties (2)
+
+    public commandStack: Command[];
+    public revertedCommandStack: Command[];
+
+    // #endregion Properties (2)
+
+    // #region Constructors (1)
 
     constructor() {
         this.commandStack = [];
         this.revertedCommandStack = [];
     }
 
-    Execute(command: Command) {
+    // #endregion Constructors (1)
+
+    // #region Public Methods (4)
+
+    public Do(command: Command): void {
+        command.execute(command.value);
+        this.commandStack.push(command);
+    }
+
+    public Execute(command: Command) {
         this.revertedCommandStack = [];
         this.Do(command);
     }
 
-    Undo(): boolean {
+    public Redo(): boolean {
+        if (this.revertedCommandStack.length > 0) {
+            do {
+                var command = this.revertedCommandStack.pop()!;
+                this.Do(command);
+            }
+            while (this.revertedCommandStack.length > 0 && this.revertedCommandStack[this.revertedCommandStack.length - 1]!.firstAction == false)
+            return true;
+        } else {
+            customWarn("Nothing to redo");
+            return false;
+        }
+    }
+
+    public Undo(): boolean {
         if (this.commandStack.length > 0) {
-            while (this.commandStack.length > 0 && this.commandStack[this.commandStack.length - 1].firstAction == false) {
-                var command = this.commandStack.pop();
+            while (this.commandStack.length > 0 && this.commandStack[this.commandStack.length - 1]!.firstAction == false) {
+                let command = this.commandStack.pop()!;
                 command.undo(command.value);
                 this.revertedCommandStack.push(command);
             }
 
             //Redo the first action of the user
-            var command = this.commandStack.pop();
+            let command = this.commandStack.pop()!;
             command.undo(command.value);
             this.revertedCommandStack.push(command);
             return true;
 
         } else {
-            CustomWarn("Nothing to revert");
+            customWarn("Nothing to revert");
             return false;
         }
     }
 
-    Do(command: Command): void {
-        command.execute(command.value);
-        this.commandStack.push(command);
-    }
-
-    Redo(): boolean {
-        if (this.revertedCommandStack.length > 0) {
-            do {
-                var command = this.revertedCommandStack.pop();
-                MyManager.Do(command);
-            }
-            while (this.revertedCommandStack.length > 0 && this.revertedCommandStack[this.revertedCommandStack.length - 1].firstAction == false)
-            return true;
-        } else {
-            CustomWarn("Nothing to redo");
-            return false;
-        }
-    }
+    // #endregion Public Methods (4)
 }
+export let myManager: CommandManager = new CommandManager();
