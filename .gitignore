@@ -2,6 +2,7 @@
 workspaceVS.code-workspace
 obj/result.html
 src/.vscode/.ropeproject/config.py
+package-lock.json
 
 # Please take extra care not to add rules that will make tracked files ignored.
 # To test that, run `git ls-files -i --exclude-standard`.
