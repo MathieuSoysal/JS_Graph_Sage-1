@@ -1,5 +1,5 @@
-import { Node, Edge, Loop, Point } from './../main/Types';
-import { Rectangle } from '../main/Rectangle';
+import { Node, Edge, Loop, Point } from '../main/graph-gestionnair/Types';
+import { SelectionRectangle } from '../main/selector-gestionnaire/SelectionRectangle';
 import each from 'jest-each';
 
 //#region Utils
@@ -18,8 +18,8 @@ function generateEdge(point1: Point, point2: Point): Edge {
 
 //#endregion Utils
 
-let rectangle: Rectangle;
-beforeAll(() => { rectangle = new Rectangle([[0, 0], [5, 5]]) });
+let rectangle: SelectionRectangle;
+beforeAll(() => { rectangle = new SelectionRectangle([[0, 0], [5, 5]]) });
 
 describe('Rectangle-hasInside', () => {
     describe('Should be inside', () => {
