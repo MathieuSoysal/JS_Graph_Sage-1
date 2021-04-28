@@ -1,109 +1,8 @@
-//Structure that allow to search DOM element only once
-var overlayElements = {
-    _groupListElement: null,
-    get groupList() {
-        if (!this._groupListElement) {
-            this._groupListElement = document.getElementById("groupList");
-        }
-        return this._groupListElement;
-    },
-
-    _keyPanelContent: null,
-    get keyPanelContent() {
-        if (!this._keyPanelContent) {
-            this._keyPanelContent = document.getElementById("KeyPanelContent");
-        }
-        return this._keyPanelContent;
-    },
-
-    _propertyPanelContent: null,
-    get propertyPanelContent() {
-        if (!this._propertyPanelContent) {
-            this._propertyPanelContent = document.getElementById("PropertyPanelContent");
-        }
-        return this._propertyPanelContent;
-    },
-
-    _toolPanelContent: null,
-    get toolPanelContent() {
-        if (!this._toolPanelContent) {
-            this._toolPanelContent = document.getElementById("ToolPanelContent");
-        }
-        return this._toolPanelContent;
-    },
-
-    _algorithmPanelContent: null,
-    get algorithmPanelContent() {
-        if (!this._algorithmPanelContent) {
-            this._algorithmPanelContent = document.getElementById("AlgorithmPanelContent");
-        }
-        return this._algorithmPanelContent;
-    },
-
-    _promptResultElement: null,
-    get promptResult() {
-        if (!this._promptResultElement) {
-            this._promptResultElement = document.getElementById("PromptResult");
-        }
-        return this._promptResultElement;
-    },
-
-    _directedRelatedElements: null,
-    get directedRelated() {
-        if (!this._directedRelatedElements) {
-            this._directedRelatedElements = document.getElementsByClassName("DirectedRelated");
-        }
-        return this._directedRelatedElements;
-    },
-
-    _scrollTextElement: null,
-    get scrollText() {
-        if (!this._scrollTextElement) {
-            this._scrollTextElement = document.getElementsByClassName("scroll")[0];
-        }
-        return this._scrollTextElement;
-    },
-
-    _radiusLabelElement: null,
-    get radiusLabel() {
-        if (!this._radiusLabelElement) {
-            this._radiusLabelElement = document.getElementById("radiusLabel");
-        }
-        return this._radiusLabelElement;
-    },
-
-    _diameterLabelElement: null,
-    get diameterLabel() {
-        if (!this._diameterLabelElement) {
-            this._diameterLabelElement = document.getElementById("diameterLabel");
-        }
-        return this._diameterLabelElement;
-    },
-
-    _regularLabelElement: null,
-    get regularLabel() {
-        if (!this._regularLabelElement) {
-            this._regularLabelElement = document.getElementById("regularLabel");
-        }
-        return this._regularLabelElement;
-    },
-
-    _planarLabelElement: null,
-    get planarLabel() {
-        if (!this._planarLabelElement) {
-            this._planarLabelElement = document.getElementById("planarLabel");
-        }
-        return this._planarLabelElement;
-    },
-
-    _bipartiteLabelElement: null,
-    get bipartiteLabel() {
-        if (!this._bipartiteLabelElement) {
-            this._bipartiteLabelElement = document.getElementById("bipartiteLabel");
-        }
-        return this._bipartiteLabelElement;
-    },
-}
+import d3 = require('d3');
+import { myManager } from './CommandePatern';
+import { UpdateGraphProperties } from './Connection';
+import { graph, GraphCustom } from './graph-gestionnaire/GraphCustom';
+import { OverlayElements } from './OverlayElements';
 
 //Return string with time on format "HH:MM""
 function prettyDate2(): string {
@@ -114,72 +13,64 @@ function prettyDate2(): string {
     }) + " ";
 }
 
-function CustomWarn(message: string, display = true): void {
+export function CustomWarn(message: string, display = true): void {
     console.warn(prettyDate2() + " " + message);
     if (display) {
         let newLine = prettyDate2() + " : " + message;
-        let logs = overlayElements.scrollText.innerHTML.split(/<br(?: \/)?>/);
+        let logs = OverlayElements.scrollText.innerHTML.split(/<br(?: \/)?>/);
         let lastLog = logs[logs.length - 2];
         if (lastLog != newLine) {
-            overlayElements.scrollText.innerHTML += newLine + "<br>"
+            OverlayElements.scrollText.innerHTML += newLine + "<br>"
         }
 
         updateScroll();
     }
 }
 
-function SetProperties(radius, diameter, regular, planar, bipartite): void {
-    overlayElements.radiusLabel.innerHTML = radius;
-    overlayElements.diameterLabel.innerHTML = diameter;
-    overlayElements.regularLabel.innerHTML = regular;
-    overlayElements.planarLabel.innerHTML = planar;
-    overlayElements.bipartiteLabel.innerHTML = bipartite;
+export function SetProperties(radius: string, diameter: string, regular: string, planar: string, bipartite: string): void {
+    OverlayElements.radiusLabel.innerHTML = radius;
+    OverlayElements.diameterLabel.innerHTML = diameter;
+    OverlayElements.regularLabel.innerHTML = regular;
+    OverlayElements.planarLabel.innerHTML = planar;
+    OverlayElements.bipartiteLabel.innerHTML = bipartite;
 }
 
-function InitInterface(): void {
-    UpdateDirectedRelatedElements();
+export function InitInterface(graphCustom?: GraphCustom): void {
+    UpdateDirectedRelatedElements(graphCustom);
 }
 
 function DisplayElement(element: HTMLElement, show: boolean): void {
     element.style.display = (show) ? "" : "none";
 }
 
-function UpdateDirectedRelatedElements(): void {
-    for (let index = 0; index < overlayElements.directedRelated.length; index++) {
-        DisplayElement(overlayElements.directedRelated[index], isDirected);
+function UpdateDirectedRelatedElements(graphCustom?: GraphCustom): void {
+    for (let index = 0; index < OverlayElements.directedRelated.length; index++) {
+        DisplayElement(OverlayElements.directedRelated.item(index)!, (graphCustom ? graphCustom : graph).directed);
     }
 }
 
-
+/**
+ * Empty the list of groups.
+ */
 function EmptyGroupList(): void {
-    for (let index = overlayElements.groupList.childElementCount - 2; index >= 0; index--) {
-        overlayElements.groupList.removeChild(overlayElements.groupList.childNodes[index]);
+    for (let index = OverlayElements.groupList.childElementCount - 2; index >= 0; index--) {
+        OverlayElements.groupList.removeChild(OverlayElements.groupList.childNodes.item(index));
     }
 }
 
-function PopulateGroupList(): void {
+export function PopulateGroupList(): void {
     EmptyGroupList();
-    for (var i = 0; i < groupList.length; i++) {
-        CreateGroupElement(groupList[i]);
-    }
-
-    overlayElements.groupList.selectedIndex = 0;
+    for (const groupName of graph.groupsNames)
+        CreateGroupElement(groupName);
+    OverlayElements.groupList.selectedIndex = 0;
 }
 
-function ChangeSelectedGroup(): void {
-    if (overlayElements.groupList.selectedIndex == overlayElements.groupList.childElementCount - 1) {
-        if (!TryAddNewGroup()) {
-            overlayElements.groupList.selectedIndex = currentGroupIndex;
-        }
-    }
-    else {
-        SetCurrentGroup();
-    }
-}
 
-function SetCurrentGroup(): void {
-    currentGroupIndex = overlayElements.groupList.selectedIndex;
-    overlayElements.groupList.style.backgroundColor = customColorScale(currentGroupIndex);
+const scale = d3.scaleOrdinal(d3.schemeCategory10)
+export function SetCurrentGroup(): void {
+    // TODO: Relier avec graphd3js
+    graph.currentGroupIndex = OverlayElements.groupList.selectedIndex;
+    OverlayElements.groupList.style.backgroundColor = scale(`${graph.currentGroupIndex}`);
 }
 
 function CreateGroupElement(name: string): void {
@@ -187,104 +78,108 @@ function CreateGroupElement(name: string): void {
     newElem.textContent = name;
     newElem.value = name;
 
-    let list = overlayElements.groupList;
+    let list = OverlayElements.groupList;
     let lastIndex = list.childElementCount - 1;
-    newElem.style.backgroundColor = customColorScale(lastIndex);
-    list.insertBefore(newElem, list.childNodes[lastIndex]);
+    newElem.style.backgroundColor = scale(`${lastIndex}`);
+    list.insertBefore(newElem, list.childNodes.item(lastIndex));
 
-    overlayElements.groupList.selectedIndex = lastIndex;
+    OverlayElements.groupList.selectedIndex = lastIndex;
     SetCurrentGroup();
 }
 
-function TryAddNewGroup(): boolean {
+export function TryAddNewGroup(): boolean {
     var newName = prompt("Please enter the group name:", "New Group");
     if (newName == null || newName == "") {
         window.alert("Invalid name, no new group created.");
         return false;
-    } else if (groupList.includes(newName)) {
+    } else if (graph.groupList.includes(newName)) {
         window.alert("This group already exist.");
         return false;
     }
     else {
-        groupList.push(newName);
+        graph.addGroup(newName);
         CreateGroupElement(newName);
         return true;
     }
 }
 
 class UserAction {
+    // #region Properties (2)
+
     private actioned: boolean;
     private nameAction: string;
+
+    // #endregion Properties (2)
+
+    // #region Constructors (1)
 
     constructor(actioned: boolean, actionName: string) {
         this.actioned = actioned;
         this.nameAction = actionName;
     }
 
-    public isActioned(): boolean {
-        return this.actioned;
-    }
+    // #endregion Constructors (1)
+
+    // #region Public Methods (2)
 
     public getNameOfAction(): string {
         return this.nameAction;
     }
+
+    public isActioned(): boolean {
+        return this.actioned;
+    }
+
+    // #endregion Public Methods (2)
 }
 
-function KeyboardEventInit(): void {
+export function KeyboardEventInit(): void {
     //Keyboard Event
     document.onkeyup = function (key) {
-        var result: UserAction = null;
+        var result: UserAction | null = null;
         switch (key.keyCode) {
             case 46:
-                result = new UserAction(RemoveSelection(), "Delete selected Elements");
+                result = new UserAction(graph.removeSelection(), "Delete selected Elements");
                 break;
             case 65:
                 //A for Add
-                result = new UserAction(AddNewNode(), "Add new node");
+                result = new UserAction(graph.addNewNode(), "Add new node");
                 break;
             case 67:
                 //C for color
-                SetGroupOfSelection();
+                graph.setGroupOfSelection();
                 break;
             case 68:
                 //V for Divide nodes on selection
-                result = new UserAction(SubdivideEdgeOnSelection(), "Subdivide selected edges");
+                result = new UserAction(graph.subdivideEdgeOnSelection(), "Subdivide selected edges");
                 break;
             case 69:
                 //E for Edges
-                result = new UserAction(AddEdgesOnSelection(), "Add edge between selected nodes");
+                result = new UserAction(graph.addEdgesOnSelection(), "Add edge between selected nodes");
                 break;
             case 70:
                 //F for Freeze
-                FreezeGraph();
+                graph.freezeOrUnfreezeGraph();
                 break;
             case 73:
                 //I for invert
-                result = new UserAction(TryInvertEdge(), "Invert selected edges orientation");
+                result = new UserAction(graph.invertEdgesOnSelection(), "Invert selected edges orientation");
                 break;
             case 76:
                 //L for Loops
-                result = new UserAction(AddLoopOnSelection(), "Add loop on selected nodes");
-                break;
-            case 78:
-                //N for Rename
-                result = new UserAction(TryRenameElement(), "Relabel hovered element");
+                result = new UserAction(graph.addLoopOnSelectedNodes(), "Add loop on selected nodes");
                 break;
             case 82:
                 //R to reset selection
-                ResetSelection();
-                break;
-            case 84:
-                //T for Test, to remove before build
-                LaunchAllTest();
+                graph.resetSelection();
                 break;
             case 89:
                 //Y to redo
-                result = new UserAction(MyManager.Redo(), "Redo previous reverted action");
+                result = new UserAction(myManager.Redo(), "Redo previous reverted action");
                 break;
             case 90:
                 //Z to undo
-                result = new UserAction(MyManager.Undo(), "Undo previous action");
+                result = new UserAction(myManager.Undo(), "Undo previous action");
                 break;
             default:
                 //Affiche le code de la touche pressée
@@ -303,74 +198,7 @@ function CheckUserAction(userAction: UserAction) {
     }
 }
 
-
-
-function TryRenameElement(): boolean {
-    if (currentObject) {
-        let newName = AskForNewName();
-        let result = CheckNewName(newName, currentObject.type);
-
-        if (result) {
-            let vr = new ValueRegisterer(currentObject.data.name, newName, currentObject);
-            MyManager.Execute(ChangeNameCommand(vr));
-            return true;
-        }
-        else {
-            CustomWarn("This name is already taken");
-        }
-    }
-    else {
-        CustomWarn("Nothing to rename");
-    }
-    return false;
-}
-
-function AskForNewName(): string {
-    return prompt("How do you want to rename it ?", "New Name");
-}
-
-function CheckNewName(name: string, type: GraphType) {
-    let list = null;
-    switch (type) {
-        case GraphType.NodeType:
-            list = graphJSON.nodes;
-            break;
-        case GraphType.EdgeType:
-            list = graphJSON.links;
-            break;
-        case GraphType.LoopType:
-            list = graphJSON.loops;
-            break;
-    }
-    return !list.some(function f(elem) {
-        return elem.name == name;
-    });
-}
-
-function TryInvertEdge(): boolean {
-    if (isDirected) {
-        return InvertEdgesOnSelection();
-    }
-    else {
-        CustomWarn("The graph is not directed");
-    }
-    return false;
-}
-
-
-function CheckCurrentObjectType(types: GraphType[]): boolean {
-    let result = (currentObject != null);
-    if (result) {
-        result = types.includes(currentObject.type);
-    }
-    return result;
-}
-
 function updateScroll(): void {
-    overlayElements.scrollText.parentNode.style.display = "inherit";
-    overlayElements.scrollText.scrollTop = overlayElements.scrollText.scrollHeight;
-}
-
-function StringToObject(string: string) {
-    return eval('(' + string + ')');
+    OverlayElements.scrollText.parentElement!.style.display = "inherit";
+    OverlayElements.scrollText.scrollTop = OverlayElements.scrollText.scrollHeight;
 }
