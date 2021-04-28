@@ -1,7 +1,7 @@
 const path = require('path');
 
 var config = {
-    entry: './src/ts/main/script.ts',
+    entry: './src/ts/main/scripts.ts',
     module: {
         rules: [
             {
@@ -20,13 +20,12 @@ var config = {
     }
 }
 
-module.exports = (env, argv) => {
+module.exports = (_, argv) => {
     if (argv.mode === 'development') {
         config.mode = 'development';
-        config.devtool = 'eval-source-map';
-        config.plugins = [
-            new webpack.DefinePlugin({ "process.env.NODE_ENV": JSON.stringify("development") }),
-        ]
+        config.devtool = 'source-map';
+        config.watch = true;
+        config.output.path = path.resolve(__dirname, "dist");
     }
     if (argv.mode === 'production') {
         config.mode = 'production';
