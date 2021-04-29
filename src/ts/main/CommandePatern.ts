@@ -38,7 +38,7 @@ export class CommandsRepository {
     };
 
     public static readonly AddNodeCommand = (graph: GraphCustom, value: Node, firstAction = true) => {
-        return new Command(graph.addNode, graph.removeNode, value, firstAction);
+        return new Command((n: Node) => graph.addNode(n), (n: Node) => graph.removeNode(n), value, firstAction);
     };
 
     public static readonly ChangeGroupCommand = (graph: GraphCustom, value: ValueRegisterer, firstAction = true) => {
