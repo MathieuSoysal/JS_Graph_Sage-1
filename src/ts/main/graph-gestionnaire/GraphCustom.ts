@@ -9,6 +9,7 @@ import { LoopManager } from "./svg-managers/LoopManager";
 import { NodeManager } from "./svg-managers/NodeManager";
 import { SelectionRectangle } from "../selector-gestionnaire/SelectionRectangle";
 import { Selector } from '../selector-gestionnaire/Selector';
+import { HtmlArranger } from './Utils';
 
 type SvgInHtml = HTMLElement & SVGElement;
 
@@ -241,7 +242,7 @@ export class GraphCustom {
     public addEdge(newEdge: Edge): void {
         this.links.push(newEdge);
         this.edgeManager.update();
-        this.placeBeforeNode("link");
+        HtmlArranger.placeBeforeNode("link");
         this.simulation.restart();
     }
 
@@ -285,7 +286,7 @@ export class GraphCustom {
     public addLoop(newLoop: Loop): void {
         this.loops.push(newLoop);
         this.loopManager.update();
-        this.placeBeforeNode("loop");
+        HtmlArranger.placeBeforeNode("loop");
         this.simulation.restart();
     }
 
@@ -897,19 +898,6 @@ export class GraphCustom {
         this.edgeManager.update();
         this.loopManager.update();
         this.arrowManager.update();
-    }
-
-    /**
-     * Puts all elements that have className as a class before the Node elements.
-     * 
-     * @param className 
-     */
-    private placeBeforeNode(className: string): void {
-        let elements = document.getElementsByClassName(className);
-        let elem = elements[elements.length - 1]!;
-
-        let firstNode = document.getElementsByClassName("node")[0]!;
-        firstNode.parentNode!.insertBefore(elem, firstNode);
     }
 
     /**
