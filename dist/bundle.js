@@ -30702,7 +30702,7 @@ class CommandManager {
             do {
                 var command = this.revertedCommandStack.pop();
                 this.Do(command);
-            } while (this.revertedCommandStack.length > 0 && this.revertedCommandStack[this.revertedCommandStack.length - 1].firstAction == false);
+            } while (this.revertedCommandStack.length > 0 && !this.revertedCommandStack[this.revertedCommandStack.length - 1].firstAction);
             return true;
         }
         else {
@@ -30712,7 +30712,7 @@ class CommandManager {
     }
     Undo() {
         if (this.commandStack.length > 0) {
-            while (this.commandStack.length > 0 && this.commandStack[this.commandStack.length - 1].firstAction == false) {
+            while (this.commandStack.length > 0 && !this.commandStack[this.commandStack.length - 1].firstAction) {
                 let command = this.commandStack.pop();
                 command.undo(command.value);
                 this.revertedCommandStack.push(command);
@@ -31143,7 +31143,6 @@ class GraphCustom {
         this.cursorPosition = new Types_1.Point(0, 0);
         this.selector = new SinglesSelector_1.SinglesSelector();
         this._groupList = [];
-        // if (this.force) { this.simulation.stop(); }
         if (graphData === null)
             graphData = this.GetGraphFromHTML();
         this._links = graphData.links;
@@ -31200,9 +31199,9 @@ class GraphCustom {
     }
     // #endregion Public Static Methods (1)
     // #region Public Methods (40)
-    FillGroupFromGraph(graph) {
+    FillGroupFromGraph(g) {
         this._groupList = [];
-        graph.nodes.forEach(element => {
+        g.nodes.forEach(element => {
             if (!this._groupList.includes(element.group)) {
                 this._groupList.push(element.group);
             }
@@ -31216,8 +31215,8 @@ class GraphCustom {
         var id = 0;
         colorationList.forEach((coloration) => {
             coloration.forEach((tuple) => {
-                let link = this.links.find((link) => {
-                    return link.source.name == tuple[0] && link.target.name == tuple[1];
+                let link = this.links.find(l => {
+                    return l.source.name == tuple[0] && l.target.name == tuple[1];
                 });
                 this.SetGroupElement(new Types_1.ValueRegisterer(id, id, link));
             });
@@ -31237,7 +31236,7 @@ class GraphCustom {
         var id = 0;
         colorationList.forEach(coloration => {
             coloration.forEach(name => {
-                let node = this.nodes.find(node => node.name == name);
+                let node = this.nodes.find(n => n.name == name);
                 this.SetGroupElement(new Types_1.ValueRegisterer(id, id, node));
             });
             id++;
@@ -31321,8 +31320,8 @@ class GraphCustom {
             let selectedNodes = this.selector.selectedNodes;
             if (selectedNodes.length > 0) {
                 let isFirst = true;
-                for (let i = 0; i < selectedNodes.length; i++) {
-                    this.addLoopOnNode(selectedNodes[i], isFirst);
+                for (const selectedNode of selectedNodes) {
+                    this.addLoopOnNode(selectedNode, isFirst);
                     isFirst = false;
                 }
                 return true;
@@ -31598,14 +31597,14 @@ class GraphCustom {
         if (this.selector.nodesAreSelected()) {
             let selectedNodes = this.selector.selectedNodes;
             let isFirst = true;
-            for (let i = 0; i < selectedNodes.length; i++) {
-                if (selectedNodes[i].group != this.groupList[this.currentGroupIndex]) {
-                    let vr = new Types_1.ValueRegisterer(selectedNodes[i].group, this.groupList[this.currentGroupIndex], selectedNodes[i]);
+            for (const selectedNode of selectedNodes) {
+                if (selectedNode.group != this.groupList[this.currentGroupIndex]) {
+                    let vr = new Types_1.ValueRegisterer(selectedNode.group, this.groupList[this.currentGroupIndex], selectedNode);
                     CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.ChangeGroupCommand(this, vr, isFirst));
                     isFirst = false;
                 }
-                return true;
             }
+            return true;
         }
         InterfaceAndMisc_1.CustomWarn("No nodes selected");
         return false;
@@ -31716,14 +31715,14 @@ class GraphCustom {
     // #region Private Static Methods (1)
     /**
      *
-     * @param graph that we take nodes
+     * @param graphP that we take nodes
      * @returns nodes contained in the given graph.
      */
-    static getNodesFrom(graph) {
+    static getNodesFrom(graphP) {
         let result = [];
-        for (let i = 0; i < graph.nodes.length; i++) {
-            let nodeInfo = graph.nodes[i];
-            let nodePos = graph.pos[i];
+        for (let i = 0; i < graphP.nodes.length; i++) {
+            let nodeInfo = graphP.nodes[i];
+            let nodePos = graphP.pos[i];
             result.push(new Types_1.Node(nodeInfo.group, nodeInfo.name, nodePos[0], nodePos[1], false, false));
         }
         return result;
@@ -31733,11 +31732,10 @@ class GraphCustom {
     GetGraphFromHTML() {
         var mydiv = document.getElementById("mygraphdata");
         var graph_as_string = mydiv.innerHTML;
-        let graph = eval(graph_as_string);
-        return graph;
+        return eval(graph_as_string);
     }
-    fillGroupFromGraph(graph) {
-        graph.nodes.forEach(element => {
+    fillGroupFromGraph(g) {
+        g.nodes.forEach(element => {
             if (!this.groupList.includes(element.group)) {
                 this.groupList.push(element.group);
             }
@@ -31848,7 +31846,6 @@ class Loop {
     }
 }
 exports.Loop = Loop;
-;
 
 
 /***/ }),
@@ -31863,8 +31860,6 @@ exports.Loop = Loop;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HtmlArranger = void 0;
 class HtmlArranger {
-    constructor() {
-    }
     /**
      * Puts all elements that have className as a class before the Node elements.
      *
@@ -32115,7 +32110,7 @@ class LoopManager {
         this.refreshLoopLabels();
     }
     refreshLoops() {
-        this.loops.style("stroke", d => (d.isSelected == true) ? "red" : d.color);
+        this.loops.style("stroke", d => d.isSelected ? "red" : d.color);
     }
 }
 exports.LoopManager = LoopManager;

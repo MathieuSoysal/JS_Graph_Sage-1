@@ -1,6 +1,4 @@
 export class HtmlArranger {
-    private constructor() {
-    }
 
     /**
      * Puts all elements that have className as a class before the Node elements.

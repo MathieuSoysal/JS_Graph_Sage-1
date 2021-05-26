@@ -1,4 +1,4 @@
-import { Edge, Loop, Node } from "../graph-gestionnaire/Types";
+import { Edge, Element, Loop, Node } from "../graph-gestionnaire/Types";
 
 export class SinglesSelector {
     // #region Properties (3)
@@ -25,7 +25,7 @@ export class SinglesSelector {
         return [...this.edges];
     }
 
-    public get selectedElements(): (Node | Loop | Edge)[] {
+    public get selectedElements(): Element[] {
         return [...this.nodes, ...this.edges, ...this.loops];
     }
 
@@ -44,7 +44,7 @@ export class SinglesSelector {
     /**
      * @param element that should be deselected
      */
-    public deselectElement(element: Node | Edge | Loop) {
+    public deselectElement(element: Element) {
         element.isSelected = false;
         if (element instanceof Node)
             this.nodes.delete(element);

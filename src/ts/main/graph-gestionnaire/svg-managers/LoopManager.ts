@@ -72,16 +72,6 @@ export class LoopManager {
     }
 
     private refreshLoops(): void {
-        this.loops.style("stroke", d => (d.isSelected == true) ? "red" : d.color);
+        this.loops.style("stroke", d => d.isSelected ? "red" : d.color);
     }
-
-    // #endregion Private Methods (2)
-/**
-         *         .on("mouseover", function (currentData) {
-                currentObject = new ElementCustom(currentData, GraphType.LoopType)
-            })
-            .on("mouseout", function () {
-                currentObject = null;
-            })
-         */
 }

@@ -148,7 +148,7 @@ export class CommandManager {
                 var command = this.revertedCommandStack.pop()!;
                 this.Do(command);
             }
-            while (this.revertedCommandStack.length > 0 && this.revertedCommandStack[this.revertedCommandStack.length - 1]!.firstAction == false)
+            while (this.revertedCommandStack.length > 0 && !this.revertedCommandStack[this.revertedCommandStack.length - 1]!.firstAction)
             return true;
         } else {
             customWarn("Nothing to redo");
@@ -158,7 +158,7 @@ export class CommandManager {
 
     public Undo(): boolean {
         if (this.commandStack.length > 0) {
-            while (this.commandStack.length > 0 && this.commandStack[this.commandStack.length - 1]!.firstAction == false) {
+            while (this.commandStack.length > 0 && !this.commandStack[this.commandStack.length - 1]!.firstAction) {
                 let command = this.commandStack.pop()!;
                 command.undo(command.value);
                 this.revertedCommandStack.push(command);

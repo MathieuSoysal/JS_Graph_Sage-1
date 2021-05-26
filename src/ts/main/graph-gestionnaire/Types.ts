@@ -24,6 +24,8 @@ export class Node {
     // #endregion Constructors (1)
 }
 
+export type Element = Edge | Node | Loop;
+
 export class Edge {
     // #region Properties (8)
 
@@ -128,4 +130,4 @@ export class Loop implements Edge {
     }
 
     // #endregion Constructors (3)
-};
+}

@@ -53,7 +53,6 @@ export class GraphCustom {
     constructor(graphData: GraphData | null = null) {
         this.selector = new SinglesSelector();
         this._groupList = [];
-        // if (this.force) { this.simulation.stop(); }
         if (graphData === null)
             graphData = this.GetGraphFromHTML();
         this._links = graphData.links;
@@ -130,9 +129,9 @@ export class GraphCustom {
 
     // #region Public Methods (40)
 
-    public FillGroupFromGraph(graph: GraphData): void {
+    public FillGroupFromGraph(g: GraphData): void {
         this._groupList = [];
-        graph.nodes.forEach(element => {
+        g.nodes.forEach(element => {
             if (!this._groupList.includes(element.group)) {
                 this._groupList.push(element.group);
             }
@@ -148,8 +147,8 @@ export class GraphCustom {
         var id = 0;
         colorationList.forEach((coloration: any) => {
             coloration.forEach((tuple: any) => {
-                let link = this.links.find((link) => {
-                    return link.source.name == tuple[0] && link.target.name == tuple[1];
+                let link = this.links.find(l => {
+                    return l.source.name == tuple[0] && l.target.name == tuple[1];
                 })!;
                 this.SetGroupElement(new ValueRegisterer(id, id, link));
             });
@@ -171,7 +170,7 @@ export class GraphCustom {
         var id = 0;
         colorationList.forEach(coloration => {
             coloration.forEach(name => {
-                let node = this.nodes.find(node => node.name == name)!;
+                let node = this.nodes.find(n => n.name == name)!;
                 this.SetGroupElement(new ValueRegisterer(id, id, node));
             });
             id++;
@@ -262,8 +261,8 @@ export class GraphCustom {
             let selectedNodes: Node[] = this.selector.selectedNodes;
             if (selectedNodes.length > 0) {
                 let isFirst = true;
-                for (let i = 0; i < selectedNodes.length; i++) {
-                    this.addLoopOnNode(selectedNodes[i]!, isFirst);
+                for (const selectedNode of selectedNodes) {
+                    this.addLoopOnNode(selectedNode, isFirst);
                     isFirst = false;
                 }
                 return true;
@@ -564,15 +563,14 @@ export class GraphCustom {
         if (this.selector.nodesAreSelected()) {
             let selectedNodes: Node[] = this.selector.selectedNodes;
             let isFirst = true;
-
-            for (let i = 0; i < selectedNodes.length; i++) {
-                if (selectedNodes[i]!.group != this.groupList[this.currentGroupIndex]) {
-                    let vr = new ValueRegisterer(selectedNodes[i]!.group, this.groupList[this.currentGroupIndex], selectedNodes[i]!);
+            for (const selectedNode of selectedNodes) {
+                if (selectedNode.group != this.groupList[this.currentGroupIndex]) {
+                    let vr = new ValueRegisterer(selectedNode.group, this.groupList[this.currentGroupIndex], selectedNode);
                     myManager.Execute(CommandsRepository.ChangeGroupCommand(this, vr, isFirst));
                     isFirst = false;
                 }
-                return true;
             }
+            return true;
         }
         customWarn("No nodes selected");
         return false;
@@ -701,14 +699,14 @@ export class GraphCustom {
 
     /**
      * 
-     * @param graph that we take nodes
+     * @param graphP that we take nodes
      * @returns nodes contained in the given graph.
      */
-    private static getNodesFrom(graph: GraphData): Node[] {
+    private static getNodesFrom(graphP: GraphData): Node[] {
         let result: Node[] = [];
-        for (let i = 0; i < graph.nodes.length; i++) {
-            let nodeInfo = graph.nodes[i];
-            let nodePos = graph.pos[i]!;
+        for (let i = 0; i < graphP.nodes.length; i++) {
+            let nodeInfo = graphP.nodes[i];
+            let nodePos = graphP.pos[i]!;
             result.push(new Node(nodeInfo!.group, nodeInfo!.name, nodePos[0]!, nodePos[1]!, false, false));
         }
         return result;
@@ -721,12 +719,11 @@ export class GraphCustom {
     private GetGraphFromHTML(): GraphData {
         var mydiv = document.getElementById("mygraphdata")!;
         var graph_as_string = mydiv.innerHTML;
-        let graph: GraphData = eval(graph_as_string);
-        return graph;
+        return eval(graph_as_string);
     }
 
-    private fillGroupFromGraph(graph: GraphData): void {
-        graph.nodes.forEach(element => {
+    private fillGroupFromGraph(g: GraphData): void {
+        g.nodes.forEach(element => {
             if (!this.groupList.includes(element.group)) {
                 this.groupList.push(element.group);
             }
