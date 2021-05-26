@@ -30,44 +30,84 @@ export class CommandsRepository {
     // #region Properties (10)
 
     public static readonly AddEdgeCommand = (graph: GraphCustom, value: Edge, firstAction = true) => {
-        return new Command((e: Edge) => graph.addEdge(e), (e: Edge) => graph.removeEdge(e), value, firstAction);
+        return new Command(
+            (e: Edge) => graph.addEdge(e),
+            (e: Edge) => graph.removeEdge(e),
+            value, firstAction
+        );
     };
 
     public static readonly AddLoopCommand = (graph: GraphCustom, value: Loop, firstAction = true) => {
-        return new Command((l: Loop) => graph.addLoop(l), (l: Loop) => graph.removeLoop(l), value, firstAction);
+        return new Command(
+            (l: Loop) => graph.addLoop(l),
+            (l: Loop) => graph.removeLoop(l),
+            value, firstAction
+        );
     };
 
     public static readonly AddNodeCommand = (graph: GraphCustom, value: Node, firstAction = true) => {
-        return new Command((n: Node) => graph.addNode(n), (n: Node) => graph.removeNode(n), value, firstAction);
+        return new Command(
+            (n: Node) => graph.addNode(n),
+            (n: Node) => graph.removeNode(n),
+            value, firstAction
+        );
     };
 
     public static readonly ChangeGroupCommand = (graph: GraphCustom, value: ValueRegisterer, firstAction = true) => {
-        return new Command(graph.setGroupElement, graph.setGroupElement, value, firstAction);
+        return new Command(
+            (v: ValueRegisterer) => graph.setGroupElement(v),
+            (v: ValueRegisterer) => graph.setGroupElement(v),
+            value, firstAction
+        );
     };
 
     public static readonly ChangeNameCommand = (graph: GraphCustom, value: ValueRegisterer, firstAction = true) => {
-        return new Command(graph.setElementName, graph.setElementName, value, firstAction);
+        return new Command(
+            (v: ValueRegisterer) => graph.setElementName(v),
+            (v: ValueRegisterer) => graph.setElementName(v),
+            value, firstAction
+        );
     };
 
     public static readonly InvertDirectionCommand = (graph: GraphCustom, edge: Edge, firstAction = true) => {
         let value = new ValueRegisterer([edge.source, edge.target], [edge.target, edge.source], edge);
-        return new Command(graph.setLinkDirection, graph.setLinkDirection, value, firstAction);
+        return new Command(
+            (v: ValueRegisterer) => graph.setLinkDirection(v),
+            (v: ValueRegisterer) => graph.setLinkDirection(v),
+            value, firstAction
+        );
     };
 
     public static readonly MoveNodeCommand = (graph: GraphCustom, value: any, firstAction = true) => {
-        return new Command(graph.setNewPosition, graph.setOldPosition, value, firstAction);
+        return new Command(
+            (v: ValueRegisterer) => graph.setNewPosition(v),
+            (v: ValueRegisterer) => graph.setOldPosition(v),
+            value, firstAction
+        );
     };
 
     public static readonly SupprEdgeCommand = (graph: GraphCustom, value: Edge, firstAction = true) => {
-        return new Command(graph.removeEdge, graph.addEdge, value, firstAction);
+        return new Command(
+            (e: Edge) => graph.removeEdge(e),
+            (e: Edge) => graph.addEdge(e),
+            value, firstAction
+        );
     };
 
     public static readonly SupprLoopCommand = (graph: GraphCustom, value: Loop, firstAction = true) => {
-        return new Command(graph.removeLoop, graph.addLoop, value, firstAction);
+        return new Command(
+            (l: Loop) => graph.removeLoop(l),
+            (l: Loop) => graph.addLoop(l),
+            value, firstAction
+        );
     };
 
     public static readonly SupprNodeCommand = (graph: GraphCustom, value: Node, firstAction = true) => {
-        return new Command(graph.removeNode, graph.addNode, value, firstAction);
+        return new Command(
+            (n: Node) => graph.removeNode(n),
+            (n: Node) => graph.addNode(n),
+            value, firstAction
+        );
     };
 
     // #endregion Properties (10)

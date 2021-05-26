@@ -1,6 +1,6 @@
-import { Node, Edge, Loop, Point } from '../main/graph-gestionnair/Types';
 import { SelectionRectangle } from '../main/selector-gestionnaire/SelectionRectangle';
 import each from 'jest-each';
+import { Edge, Loop, Node, Point } from '../main/graph-gestionnaire/Types';
 
 //#region Utils
 

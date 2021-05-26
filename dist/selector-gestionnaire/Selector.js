@@ -1,123 +1,103 @@
-import { Edge, Loop, Node } from "../graph-gestionnaire/Types";
-
-export class Selector {
-    // #region Properties (3)
-
-    private edges: Array<Edge>
-    private loops: Array<Loop>;
-    private nodes: Array<Node>;
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Selector = void 0;
+const Types_1 = require("../graph-gestionnaire/Types");
+class Selector {
     // #endregion Properties (3)
-
     // #region Constructors (1)
-
     constructor() {
         this.nodes = [];
         this.edges = [];
         this.loops = [];
     }
-
     // #endregion Constructors (1)
-
     // #region Public Accessors (3)
-
-    public get selectedEdges(): Edge[] {
+    get selectedEdges() {
         return this.edges;
     }
-
-    public get selectedLoops(): Loop[] {
+    get selectedLoops() {
         return this.loops;
     }
-
-    public get selectedNodes(): Node[] {
+    get selectedNodes() {
         return this.nodes;
     }
-
     // #endregion Public Accessors (3)
-
     // #region Public Methods (6)
-
     /**
      * @returns True if edges are selected, else false.
      */
-    public edgesAreSelected(): boolean {
+    edgesAreSelected() {
         return this.edges.length !== 0;
     }
-
     /**
      * @returns True if loops are selected, else false.
      */
-    public loopsAreSelected(): boolean {
+    loopsAreSelected() {
         return this.loops.length !== 0;
     }
-
     /**
      * @returns True if nodes are selected, else false.
      */
-    public nodesAreSelected(): boolean {
+    nodesAreSelected() {
         return this.nodes.length !== 0;
     }
-
     /**
      * reset aller selected elements
      */
-    public resetSelection(): void {
-        if (this.nodes && this.nodes.length > 0) this.nodes.forEach(e => e.isSelected = false);
-        if (this.edges && this.edges.length > 0) this.edges.forEach(e => e.isSelected = false);
-        if (this.loops && this.loops.length > 0) this.loops.forEach(e => e.isSelected = false);
+    resetSelection() {
+        if (this.nodes && this.nodes.length > 0)
+            this.nodes.forEach(e => e.isSelected = false);
+        if (this.edges && this.edges.length > 0)
+            this.edges.forEach(e => e.isSelected = false);
+        if (this.loops && this.loops.length > 0)
+            this.loops.forEach(e => e.isSelected = false);
         this.nodes = [];
         this.edges = [];
         this.loops = [];
     }
-
     /**
      * @param element that should be selected
      */
-    public selectElement(element: Node | Edge | Loop) {
+    selectElement(element) {
         element.isSelected = true;
-        if (element instanceof Node)
+        if (element instanceof Types_1.Node)
             this.nodes.push(element);
-        else if (element instanceof Edge)
+        else if (element instanceof Types_1.Edge)
             this.edges.push(element);
-
         else
             this.loops.push(element);
     }
-
     /**
      * If element is already selected, unselect this element
      * Else selection this element
-     * 
-     * @param element 
+     *
+     * @param element
      */
-    public selectOrUnselectElement(element: Node | Edge | Loop) {
+    selectOrUnselectElement(element) {
         if (!element.isSelected) {
             this.selectElement(element);
-        } else {
+        }
+        else {
             this.deselectElement(element);
         }
     }
-
     /**
      * @param element that should be deselected
      */
-    public deselectElement(element: Node | Edge | Loop) {
+    deselectElement(element) {
         element.isSelected = false;
-        if (element instanceof Node)
+        if (element instanceof Types_1.Node)
             this.remove(this.nodes, element);
-        else if (element instanceof Edge)
+        else if (element instanceof Types_1.Edge)
             this.remove(this.edges, element);
         else
             this.remove(this.loops, element);
     }
-
     // #endregion Public Methods (6)
-
     // #region Private Methods (1)
-
-    private remove(array: Array<Node | Edge | Loop>, element: Node | Edge | Loop) {
+    remove(array, element) {
         array.splice(array.indexOf(element), 1);
     }
-
-    // #endregion Private Methods (1)
 }
+exports.Selector = Selector;
+//# sourceMappingURL=Selector.js.map

@@ -1,14 +1,9 @@
-import * as d3 from "d3";
 import { CommandsRepository, myManager } from '../CommandePatern';
 import { SageCommand } from "../Connection";
-import { Edge, Loop, Node, Point, ValueRegisterer } from './Types';
 import { CustomWarn as customWarn, InitInterface, PopulateGroupList } from "../InterfaceAndMisc";
-import { ArrowManager } from "./svg-managers/ArrowManager";
-import { EdgeManager } from "./svg-managers/EdgeManager";
-import { LoopManager } from "./svg-managers/LoopManager";
-import { NodeManager } from "./svg-managers/NodeManager";
-import { SelectionRectangle } from "../selector-gestionnaire/SelectionRectangle";
-import { Selector } from '../selector-gestionnaire/Selector';
+import { SinglesSelector } from '../selector-gestionnaire/SinglesSelector';
+import SvgsManager from "./svg-managers/SvgsManager";
+import { Edge, Loop, Node, Point, ValueRegisterer } from './Types';
 import { HtmlArranger } from './Utils';
 
 type SvgInHtml = HTMLElement & SVGElement;
@@ -19,7 +14,7 @@ export let graph: GraphCustom;
  * Class representing a Graph
  */
 export class GraphCustom {
-    // #region Properties (23)
+    // #region Properties (18)
 
     /** The commands manager */
     /** Directed graph indicator */
@@ -32,11 +27,8 @@ export class GraphCustom {
     private _loops: Loop[];
     /** The nodes of graph */
     private _nodes: Node[];
-    private _svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
     private _vertex_size: number;
-    private arrowManager: ArrowManager;
     private charge: number;
-    private edgeManager: EdgeManager;
     /** The force of graph */
     /** Frozen graph indicator */
     private frozen = false;
@@ -44,33 +36,28 @@ export class GraphCustom {
     /**The function 'line' takes as input a sequence of tuples, and returns a curve interpolating these points.*/
     private link_distance: number;
     private link_strength: number;
-    private loopManager: LoopManager;
     private movedNode: Node | undefined;
-    private nodeManager: NodeManager;
-    private selector: Selector;
-    private simulation: d3.Simulation<Node, undefined>;
+    private svgsManager: SvgsManager;
 
-    /** The current groupe index */
     public currentGroupIndex = 0;
-    /** The current element index */
     // private currentObject: any | null = null;
-    /** The current position of cursor */
     public cursorPosition = new Point(0, 0);
     public message: string;
     public parameter: SageCommand;
+    public selector: SinglesSelector;
 
-    // #endregion Properties (23)
+    // #endregion Properties (18)
 
     // #region Constructors (1)
 
     constructor(graphData: GraphData | null = null) {
-        this.selector = new Selector();
+        this.selector = new SinglesSelector();
         this._groupList = [];
         // if (this.force) { this.simulation.stop(); }
         if (graphData === null)
             graphData = this.GetGraphFromHTML();
         this._links = graphData.links;
-        this._loops = graphData.loops;
+        this._loops = graphData.loops!;
         this._nodes = GraphCustom.getNodesFrom(graphData);
         this._directed = graphData.directed;
         this.frozen = graphData.directed;
@@ -79,58 +66,28 @@ export class GraphCustom {
         this.link_distance = graphData.link_distance;
         this._vertex_size = graphData.vertex_size;
         this.link_strength = graphData.link_strength;
-        if (this._svg) {
+        if (this.svgsManager) {
             let oldSVG = document.getElementById("svg") as SvgInHtml;
             oldSVG.parentElement!.removeChild(oldSVG);
         }
-        this._svg = d3.select("#graphFrame").append("svg")
-            .attr("id", "svg")
-            .attr("width", this.width)
-            .attr("height", this.height)
-            .attr("pointer-events", "all") // Zoom+move management
-            .append('svg:g')
-            .append('svg:rect')
-            .attr('x', -10000)
-            .attr('y', -10000)
-            .attr('width', 2 * 10000)
-            .attr('height', 2 * 10000);
 
-        this.simulation = d3.forceSimulation(this.nodes)
-            .force("link", d3.forceLink(this.links).id(d => d.index!))
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(this.width / 2, this.height / 2));
+        this.svgsManager = new SvgsManager(this);
 
-        // SVG window
-
-        this.edgeManager = new EdgeManager(this);
-        this.nodeManager = new NodeManager(this);
-        this.loopManager = new LoopManager(this);
-        this.arrowManager = new ArrowManager(this);
         this.fillGroupFromGraph(graphData);
-        this.initGraph();
         InitInterface(this);
-        this.manageAllGraphicsElements();
-        this.initForce();
-        //Start the automatic force layout
-        this.simulation.restart();
-        //Freeze the graph after 2 sec
         this.waitGraphLoadToFreeze(2000);
     }
 
     // #endregion Constructors (1)
 
-    // #region Public Accessors (12)
+    // #region Public Accessors (10)
 
     public get directed() {
         return this._directed;
     }
 
-    public get elementSelector(): Selector {
+    public get elementSelector(): SinglesSelector {
         return this.selector;
-    }
-
-    public get forceSimulation(): d3.Simulation<Node, undefined> {
-        return this.simulation;
     }
 
     public get groupList(): Array<string> {
@@ -155,17 +112,13 @@ export class GraphCustom {
         return this._nodes;
     }
 
-    public get svg(): d3.Selection<d3.BaseType, unknown, HTMLElement, any> {
-        return this._svg;
-    }
-
     public get vertex_size(): number {
         return this._vertex_size;
     }
 
     public get width() { return document.documentElement.clientWidth * 0.8 }
 
-    // #endregion Public Accessors (12)
+    // #endregion Public Accessors (10)
 
     // #region Public Static Methods (1)
 
@@ -202,7 +155,7 @@ export class GraphCustom {
             });
             id++;
         });
-        this.edgeManager.update();
+        this.svgsManager.edgeManager.update();
     }
 
     /**
@@ -231,7 +184,7 @@ export class GraphCustom {
             }
         });
         PopulateGroupList();
-        this.nodeManager.update();
+        this.svgsManager.nodeManager.update();
     }
 
     /**
@@ -241,9 +194,8 @@ export class GraphCustom {
      */
     public addEdge(newEdge: Edge): void {
         this.links.push(newEdge);
-        this.edgeManager.update();
+        this.svgsManager.edgeManager.update();
         HtmlArranger.placeBeforeNode("link");
-        this.simulation.restart();
     }
 
     /**
@@ -251,9 +203,8 @@ export class GraphCustom {
      * @returns True if nodes are selectioned and connections with other selectioned nodes is succesful, otherwise return false.
      */
     public addEdgesOnSelection(): boolean {
-        if (this.selector.nodesAreSelected()) {
-            let selectedNodes = this.selector.selectedNodes;
-
+        let selectedNodes = this.svgsManager.nodeManager.nodes.filter(n => n.isSelected).data();
+        if (selectedNodes.length > 0) {
             let isFirst = true;
             for (let i = 0; i < selectedNodes.length; i++) {
                 for (let j = i + 1; j < selectedNodes.length; j++) {
@@ -262,6 +213,7 @@ export class GraphCustom {
                     isFirst = false;
                 }
             }
+            this.svgsManager.edgeManager.update();
             return true;
         }
         customWarn("No nodes to add loop at on the selection");
@@ -285,9 +237,8 @@ export class GraphCustom {
      */
     public addLoop(newLoop: Loop): void {
         this.loops.push(newLoop);
-        this.loopManager.update();
+        this.svgsManager.loopManager.update();
         HtmlArranger.placeBeforeNode("loop");
-        this.simulation.restart();
     }
 
     /**
@@ -331,6 +282,7 @@ export class GraphCustom {
     public addNewNode() {
         var newNode = this.createNode();
         myManager.Execute(CommandsRepository.AddNodeCommand(this, newNode));
+        this.svgsManager.updateAll();
         return true;
     }
 
@@ -345,10 +297,7 @@ export class GraphCustom {
         this.nodes.push(newNode);
 
         //Apply nodes rules to the data
-        this.nodeManager.update();
-
-        //Restart the force layout with the new elements
-        this.simulation.restart();
+        this.svgsManager.updateAll();
 
         return true;
     }
@@ -390,9 +339,9 @@ export class GraphCustom {
      */
     public displayOrHideArrows() {
         if (this.directed)
-            this.arrowManager.displayArrows();
+            this.svgsManager.arrowManager.displayArrows();
         else
-            this.arrowManager.hideArrows();
+            this.svgsManager.arrowManager.hideArrows();
     }
 
     public freezeOrUnfreezeGraph(): void {
@@ -436,8 +385,7 @@ export class GraphCustom {
         //Prevent multiple deletion on the same element causing bugs
         if (index != -1) {
             this.links.splice(index, 1);
-            this.edgeManager.update();
-            this.simulation.restart();
+            this.svgsManager.edgeManager.update();
         }
     }
 
@@ -478,8 +426,7 @@ export class GraphCustom {
         //Prevent multiple deletion on the same element causing bugs
         if (index != -1) {
             this.loops.splice(this.loops.indexOf(loop), 1);
-            this.loopManager.update();
-            this.simulation.restart();
+            this.svgsManager.loopManager.update();
         }
     }
 
@@ -501,9 +448,8 @@ export class GraphCustom {
      * @param node that to be removed from graph 
      */
     public removeNode(node: Node): void {
-        this.nodes.splice(this.nodes.indexOf(node), 1);
-        this.nodeManager.update();
-        this.simulation.restart();
+        this._nodes.splice(this.nodes.indexOf(node), 1);
+        this.svgsManager.nodeManager.remove(node);
     }
 
     /**
@@ -538,20 +484,23 @@ export class GraphCustom {
      */
     public removeSelection(): boolean {
         let isFirst = true;
-        if (this.selector.nodesAreSelected() || this.selector.loopsAreSelected() || this.selector.edgesAreSelected()) {
-            if (this.selector.nodesAreSelected()) {
-                this.selector.selectedNodes.forEach((node, i) => this.removeNodeCommand(node, i === 0 && isFirst));
-                this.nodeManager.update();
+        let selectedLinks = this._links.filter(e => e.isSelected);
+        let selectedLoops = this._loops.filter(e => e.isSelected);
+        let selectedNodes = this._nodes.filter(e => e.isSelected);
+        if (selectedNodes.length != 0 || selectedLoops.length != 0 || selectedLinks.length != 0) {
+            if (selectedNodes.length != 0) {
+                selectedNodes.forEach((node, i) => this.removeNodeCommand(node, i === 0 && isFirst));
+                this.svgsManager.nodeManager.update();
                 isFirst = false;
             }
-            if (this.selector.loopsAreSelected()) {
-                this.selector.selectedLoops.forEach((loop, i) => this.removeLoopCommand(loop, i === 0 && isFirst));
-                this.loopManager.update();
+            if (selectedLoops.length != 0) {
+                selectedLoops.forEach((loop, i) => this.removeLoopCommand(loop, i === 0 && isFirst));
+                this.svgsManager.loopManager.update();
                 isFirst = false;
             }
-            if (this.selector.edgesAreSelected()) {
-                this.selector.selectedEdges.forEach((edge, i) => this.removeEdgeCommand(edge, i === 0 && isFirst));
-                this.edgeManager.update();
+            if (selectedLinks.length != 0) {
+                selectedLinks.forEach((edge, i) => this.removeEdgeCommand(edge, i === 0 && isFirst));
+                this.svgsManager.edgeManager.update();
                 isFirst = false;
             }
             this.selector.resetSelection();
@@ -563,6 +512,7 @@ export class GraphCustom {
 
     public resetSelection() {
         this.selector.resetSelection();
+        this.svgsManager.updateAll();
     }
 
     /**
@@ -574,11 +524,11 @@ export class GraphCustom {
         let element = valueRegisterer.element;
         element.name = (element.name == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
         if (element instanceof Edge)
-            this.edgeManager.refreshEdgeLabels();
+            this.svgsManager.edgeManager.refreshEdgeLabels();
         if (element instanceof Loop)
-            this.loopManager.refreshLoopLabels();
+            this.svgsManager.loopManager.refreshLoopLabels();
         if (element instanceof Node)
-            this.nodeManager.refreshNodeLabels();
+            this.svgsManager.nodeManager.refreshNodeLabels();
     }
 
     /**
@@ -591,17 +541,17 @@ export class GraphCustom {
         if (valueRegisterer.element instanceof Node) {
             let node = this.nodes.find(n => n === valueRegisterer.element)!;
             node.group = (node.group == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
-            this.nodeManager.update();
+            this.svgsManager.nodeManager.update();
         }
         else if (valueRegisterer.element instanceof Edge) {
-            let edge = this.links.find(edge => edge === valueRegisterer.element)!;
+            let edge = this.links.find(e => e === valueRegisterer.element)!;
             edge.group = (edge.group == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
-            this.edgeManager.update();
+            this.svgsManager.edgeManager.update();
         }
         else {
-            let loop = this.loops.find(loop => loop === valueRegisterer.element)!;
+            let loop = this.loops.find(l => l === valueRegisterer.element)!;
             loop.group = (loop.group == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
-            this.loopManager.update();
+            this.svgsManager.loopManager.update();
         }
     }
 
@@ -634,13 +584,12 @@ export class GraphCustom {
      * @param valueRegisterer contains the edge, new direction, old direction.
      */
     public setLinkDirection(valueRegisterer: ValueRegisterer): void {
-        let link = this.links.find(link => link === valueRegisterer.element)!;
+        let link = this.links.find(l => l === valueRegisterer.element)!;
         let targetedValue = (link.source == valueRegisterer.newValue[0]) ? valueRegisterer.oldValue : valueRegisterer.newValue;
 
         link.source = targetedValue[0];
         link.target = targetedValue[1];
-        this.edgeManager.update();
-        this.simulation.restart();
+        this.svgsManager.edgeManager.update();
     }
 
     public setNewPosition(registeredPos: ValueRegisterer): void {
@@ -653,13 +602,10 @@ export class GraphCustom {
      * @param Pos that contains the new position of node
      * @param node that should be updated
      */
-    public setNodePosition(Pos: Point, node: Node): void {
+    public setNodePosition(Pos: number[], node: Node): void {
         let currrentNode = this.nodes.find(n => n === node);
-        this.simulation.stop();
-        currrentNode!.x = Pos.x;
-        currrentNode!.y = Pos.y;
-        this.simulation.restart();
-        // TODO
+        currrentNode!.x = Pos[0]!;
+        currrentNode!.y = Pos[1]!;
     }
 
     /**
@@ -761,50 +707,22 @@ export class GraphCustom {
     private static getNodesFrom(graph: GraphData): Node[] {
         let result: Node[] = [];
         for (let i = 0; i < graph.nodes.length; i++) {
-            const nodeInfo = graph.nodes[i];
-            const nodePos = graph.pos[i];
-            result.push(new Node(nodeInfo!.group, nodeInfo!.name, nodePos!.x, nodePos!.y, false, false));
+            let nodeInfo = graph.nodes[i];
+            let nodePos = graph.pos[i]!;
+            result.push(new Node(nodeInfo!.group, nodeInfo!.name, nodePos[0]!, nodePos[1]!, false, false));
         }
         return result;
     }
 
     // #endregion Private Static Methods (1)
 
-    // #region Private Methods (11)
+    // #region Private Methods (5)
 
     private GetGraphFromHTML(): GraphData {
         var mydiv = document.getElementById("mygraphdata")!;
         var graph_as_string = mydiv.innerHTML;
         let graph: GraphData = eval(graph_as_string);
         return graph;
-    }
-
-    private center_and_scale() {
-        var minx = this.nodes[0]!.x;
-        var maxx = this.nodes[0]!.x;
-        var miny = this.nodes[0]!.y;
-        var maxy = this.nodes[0]!.y;
-
-        //Determine Min/Max
-        this.nodes.forEach(function (n) {
-            maxx = Math.max(maxx, n.x);
-            minx = Math.min(minx, n.x);
-            maxy = Math.max(maxy, n.y);
-            miny = Math.min(miny, n.y);
-        });
-
-        var border = 60
-        var xspan = maxx - minx;
-        var yspan = maxy - miny;
-
-        var scale = Math.min((this.height - border) / yspan, (this.width - border) / xspan);
-        var xshift = (this.width - scale * xspan) / 2
-        var yshift = (this.height - scale * yspan) / 2
-
-        this.simulation.nodes().forEach(node => {
-            node.x = scale * (node.x! - minx) + xshift;
-            node.y = scale * (node.y! - miny) + yshift;
-        });
     }
 
     private fillGroupFromGraph(graph: GraphData): void {
@@ -821,83 +739,6 @@ export class GraphCustom {
             if (this.nodes.find(node => +node.name === i) === undefined)
                 lowestID = i;
         return lowestID.toString(10);
-    }
-
-    private initBrush() {
-        d3.brush()
-            .extent([[-100000, 100000], [-100000, 100000]])
-            .on("start brush end", (ev: d3.D3BrushEvent<any>) => {
-                if (ev.selection === null) {
-                    this.selector.resetSelection();
-                } else {
-                    let rectangleSelection: SelectionRectangle = new SelectionRectangle(ev.target.extent() as unknown as number[][]);
-                    this.nodes.forEach(node => { if (rectangleSelection.hasNodeInside(node)) this.selector.selectElement(node) });
-                    this.loops.forEach(loop => { if (rectangleSelection.hasLoopInside(loop)) this.selector.selectElement(loop) });
-                    this.links.forEach(edge => { if (rectangleSelection.hasEdgeInside(edge)) this.selector.selectElement(edge) });
-                }
-                this.nodeManager.update();
-                this.loopManager.update();
-                this.edgeManager.update();
-            });
-    }
-
-    private initForce() {
-        const link = this._svg.append("g")
-            .attr("stroke", "#999")
-            .attr("stroke-opacity", 0.6)
-            .selectAll("line")
-            .data(this.links)
-            .join("line")
-            .attr("stroke-width", d => d.strength);
-
-        const node = this.nodeManager.nodes;
-
-        node.append("title")
-            .text(d => d.name);
-
-        this.simulation.on("tick", () => {
-            link
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-
-            node
-                .attr("cx", d => d.x)
-                .attr("cy", d => d.y);
-        });
-    }
-
-    private initGraph(): void {
-        this.loops.forEach(loop => {
-            loop.source = this.nodes[this.nodes.indexOf(loop.source)]!;
-            loop.target = this.nodes[this.nodes.indexOf(loop.source)]!;
-        });
-
-        this.simulation.on("tick", () => {
-            this.edgeManager.links
-                .attr("x1", d => d.source.x)
-                .attr("y1", d => d.source.y)
-                .attr("x2", d => d.target.x)
-                .attr("y2", d => d.target.y);
-
-            this.nodeManager.nodes
-                .attr("cx", d => d.x)
-                .attr("cy", d => d.y);
-        });
-
-        // Adapts the graph layout to the javascript window's dimensions
-        if (this.nodes.length != 0) {
-            this.center_and_scale();
-        }
-    }
-
-    private manageAllGraphicsElements() {
-        this.initBrush();
-        this.nodeManager.update();
-        this.edgeManager.update();
-        this.loopManager.update();
-        this.arrowManager.update();
     }
 
     /**
@@ -925,7 +766,7 @@ export class GraphCustom {
         setTimeout(() => this.freezeOrUnfreezeGraph(), waitingTime);
     }
 
-    // #endregion Private Methods (11)
+    // #endregion Private Methods (5)
 }
 
 type JsonEdge = {
@@ -969,7 +810,7 @@ interface GraphData {
     links: Edge[];
     loops: Loop[];
     nodes: { name: string, group: string }[];
-    pos: { x: number, y: number }[];
+    pos: number[][];
     vertex_size: number;
 
     // #endregion Properties (11)

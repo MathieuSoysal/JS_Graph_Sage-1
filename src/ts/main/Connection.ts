@@ -66,8 +66,6 @@ function TreatResponse(response: { request: SageCommand; result: string | any[];
     }
 }
 
-
-
 export function SubmitMessage(parameter: SageCommand, message = "") {
     graph.parameter = parameter;
     graph.message = message;

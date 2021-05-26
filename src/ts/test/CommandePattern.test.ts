@@ -1,6 +1,7 @@
-import { GraphCustom } from '../main/graph-gestionnaire/GraphCustom';
 import { CommandManager, CommandsRepository } from '../main/CommandePatern';
-import { Edge, Loop, Node } from '../main/graph-gestionnaire/Types';
+import { GraphCustom } from '../main/graph-gestionnaire/GraphCustom';
+import NodeManager from '../main/graph-gestionnaire/svg-managers/NodeManager';
+import { Edge, Loop, Node, ValueRegisterer } from '../main/graph-gestionnaire/Types';
 import { HtmlArranger } from '../main/graph-gestionnaire/Utils';
 import { mockFunction } from './UtilsTests';
 
@@ -48,6 +49,26 @@ describe('test commands on Execute', () => {
 
         expect(graph.links).toContain(newEdge);
         expect(placeBeforeNodeMock).toHaveBeenCalledTimes(1);
+    });
+
+    jest.mock('../main/graph-gestionnaire/svg-managers/NodeManager.ts', () => {
+        const mNodeManager = {
+            refreshNodeLabels: () => { },
+            update: () => { },
+        };
+        return { NodeManager: jest.fn(() => mNodeManager) };
+    });
+
+    const nodeManager = new NodeManager(null as any, null as any);
+    it('ChangeNameCommande should change name of a element in graph', () => {
+        const newName: string = 'newName';
+        const chosenNode: Node = graph.nodes[0]!;
+        let valueRegisterer: ValueRegisterer = new ValueRegisterer('', newName, chosenNode);
+
+        commandManager.Execute(CommandsRepository.ChangeNameCommand(graph, valueRegisterer, true));
+
+        expect(chosenNode.name).toEqual(newName);
+        expect(nodeManager.update).toHaveBeenCalled();
     });
 
 });

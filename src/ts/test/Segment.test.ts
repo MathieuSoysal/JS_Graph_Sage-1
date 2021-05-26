@@ -1,6 +1,6 @@
 import each from 'jest-each';
-import { Segment } from '../main/Segment';
-import { Edge, Node, Point } from '../main/Types';
+import { Edge, Node, Point } from '../main/graph-gestionnaire/Types';
+import { Segment } from '../main/selector-gestionnaire/Segment';
 
 describe("doIntersect test", () => {
     describe("Should be intersect", () => {

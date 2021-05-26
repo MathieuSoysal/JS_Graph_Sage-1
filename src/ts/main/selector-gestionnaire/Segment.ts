@@ -8,7 +8,7 @@ export class Segment {
 
     // #endregion Properties (2)
 
-    // #region Constructors (1)
+    // #region Constructors (3)
 
     constructor(edge: Edge);
     constructor(start: Point, end: Point);
@@ -22,7 +22,7 @@ export class Segment {
         }
     }
 
-    // #endregion Constructors (1)
+    // #endregion Constructors (3)
 
     // #region Public Methods (1)
 

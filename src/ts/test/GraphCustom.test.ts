@@ -25,3 +25,12 @@ describe("Test JSON", () => {
     })
 
 })
+
+describe('removeNode', () => {
+    test('node should be removed', () => {
+        let graph = new GraphCustom(JSON_OBJECT);
+        let removedNode = graph.nodes[0]!;
+        graph.removeNode(removedNode)
+        expect(graph.nodes).not.toContain(removedNode);
+    });
+});

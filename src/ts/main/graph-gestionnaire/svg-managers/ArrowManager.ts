@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { GraphCustom } from '../GraphCustom';
+import SvgsManager from './SvgsManager';
 
 /**
  * This class manages all svg arrows in the displayed svg 
@@ -16,8 +17,8 @@ export class ArrowManager {
 
     // #region Constructors (1)
 
-    constructor(graph: GraphCustom) {
-        this.svg = graph.svg;
+    constructor(svgsManager: SvgsManager, graph: GraphCustom) {
+        this.svg = svgsManager.svg;
         this.graph = graph;
         this.update();
     }

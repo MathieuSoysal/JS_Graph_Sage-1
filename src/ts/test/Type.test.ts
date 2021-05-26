@@ -1,5 +1,5 @@
-import { Edge, Node, Point } from './../main/Types';
 import each from 'jest-each';
+import { Edge, Node, Point } from '../main/graph-gestionnaire/Types';
 
 
 describe("Edge constructor", () => {

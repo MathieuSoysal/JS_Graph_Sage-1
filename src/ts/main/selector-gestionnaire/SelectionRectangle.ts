@@ -1,9 +1,15 @@
 import { Segment } from './Segment';
 import { Node, Edge, Loop, Point } from '../graph-gestionnaire/Types';
+import { SinglesSelector } from './SinglesSelector';
+import { GraphCustom } from '../graph-gestionnaire/GraphCustom';
 
+/**
+ * the SelectionRectangle class is used for brush
+ */
 export class SelectionRectangle {
-    // #region Properties (8)
+    // #region Properties (9)
 
+    private _selector: SinglesSelector;
     private bottomBorder: Segment;
     private bottomLefttCorner: Point;
     private bottomRightCorner: Point;
@@ -13,24 +19,29 @@ export class SelectionRectangle {
     private topLeftCorner: Point;
     private topRightCorner: Point;
 
-    // #endregion Properties (8)
+    // #endregion Properties (9)
 
     // #region Constructors (1)
 
-    constructor(extent: number[][]) {
-        this.topLeftCorner = new Point(extent[0]![0]!, extent[0]![1]!);
-        this.topRightCorner = new Point(extent[1]![0]!, extent[0]![1]!);
-        this.bottomLefttCorner = new Point(extent[0]![0]!, extent[1]![1]!);
-        this.bottomRightCorner = new Point(extent[1]![0]!, extent[1]![1]!);
-        this.topBorder = new Segment(this.topLeftCorner, this.topRightCorner);
-        this.leftBorder = new Segment(this.topLeftCorner, this.bottomLefttCorner);
-        this.rightBorder = new Segment(this.topRightCorner, this.bottomRightCorner);
-        this.bottomBorder = new Segment(this.bottomRightCorner, this.bottomLefttCorner);
+    constructor() {
+        this._selector = new SinglesSelector();
     }
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (3)
+    // #region Public Methods (7)
+
+    /**
+     * Check if given edge is inside this rectangle
+     * 
+     * @param edge to check if the position ise inside this rectangle.
+     * @returns True if is inside, otherwise false.
+     */
+    public hasEdgeInside(edge: Edge): boolean {
+        return this.hasNodeInside(edge.source)
+            || this.hasNodeInside(edge.target)
+            || this.doesSegmentIntersect(edge);
+    }
 
     /**
      * Check if given element is inside this rectangle
@@ -48,6 +59,16 @@ export class SelectionRectangle {
     }
 
     /**
+     * Check if given loop is inside this rectangle
+     * 
+     * @param loop to check if the position ise inside this rectangle.
+     * @returns True if is inside, otherwise false.
+     */
+    public hasLoopInside(loop: Loop): boolean {
+        return this.hasNodeInside(loop.source);
+    }
+
+    /**
      * Check if given node is inside this rectangle
      * 
      * @param node to check if the position ise inside this rectangle.
@@ -60,31 +81,47 @@ export class SelectionRectangle {
             && node.y < this.bottomRightCorner.y;
     }
 
-    /**
-     * Check if given edge is inside this rectangle
-     * 
-     * @param edge to check if the position ise inside this rectangle.
-     * @returns True if is inside, otherwise false.
-     */
-    public hasEdgeInside(edge: Edge): boolean {
-        return this.hasNodeInside(edge.source)
-            || this.hasNodeInside(edge.target)
-            || this.doesSegmentIntersect(edge);
+    public resetSelection() {
+        this._selector.resetSelection();
     }
 
     /**
-     * Check if given loop is inside this rectangle
+     * Set a new selection positions and deselects all items that are no longer on the new selection 
      * 
-     * @param loop to check if the position ise inside this rectangle.
-     * @returns True if is inside, otherwise false.
+     * @param selectionPos [[topLeftCorner.x, topLeftCorner.y] , [bottomRightCorner.x, bottomRightCorner.y]]
      */
-    public hasLoopInside(loop: Loop): boolean {
-        return this.hasNodeInside(loop.source);
+    public setNewSelection(selectionPos: number[][]) {
+        this.topLeftCorner = new Point(selectionPos[0]![0]!, selectionPos[0]![1]!);
+        this.topRightCorner = new Point(selectionPos[1]![0]!, selectionPos[0]![1]!);
+        this.bottomLefttCorner = new Point(selectionPos[0]![0]!, selectionPos[1]![1]!);
+        this.bottomRightCorner = new Point(selectionPos[1]![0]!, selectionPos[1]![1]!);
+        this.topBorder = new Segment(this.topLeftCorner, this.topRightCorner);
+        this.leftBorder = new Segment(this.topLeftCorner, this.bottomLefttCorner);
+        this.rightBorder = new Segment(this.topRightCorner, this.bottomRightCorner);
+        this.bottomBorder = new Segment(this.bottomRightCorner, this.bottomLefttCorner);
     }
 
-    // #endregion Public Methods (3)
+    /**
+     * Deselects all items that are no longer on selection and
+     * Selects all elements of given graph that are inside selection
+     * 
+     * @param graph from which elements will be retrieved
+     */
+    public updateSelectedElements(graph: GraphCustom) {
+        this.deselectsAllElementsThatAreNoLongerOnSelection();
+        this.selectsAllItemsThatAreInsideSelection(graph);
+    }
 
-    // #region Private Methods (2)
+    // #endregion Public Methods (7)
+
+    // #region Private Methods (3)
+
+    /**
+     * Deselects all items that are no longer on selection
+     */
+    private deselectsAllElementsThatAreNoLongerOnSelection() {
+        this._selector.selectedElements.filter(e => !this.hasInside(e)).forEach(e => this._selector.deselectElement(e))
+    }
 
     private doesSegmentIntersect(edge: Edge): boolean {
         let edgeSegment: Segment = new Segment(edge);
@@ -94,5 +131,16 @@ export class SelectionRectangle {
             || this.bottomBorder.doIntersect(edgeSegment);
     }
 
-    // #endregion Private Methods (2)
+    /**
+     * Selects all items of given graph that are inside selection
+     * 
+     * @param graph from which elements will be retrieved 
+     */
+    private selectsAllItemsThatAreInsideSelection(graph: GraphCustom) {
+        graph.loops.filter(e => !e.isSelected && this.hasLoopInside(e)).forEach(e => this._selector.selectElement(e));
+        graph.links.filter(e => !e.isSelected && this.hasEdgeInside(e)).forEach(e => this._selector.selectElement(e));
+        graph.nodes.filter(e => !e.isSelected && this.hasNodeInside(e)).forEach(e => this._selector.selectElement(e));
+    }
+
+    // #endregion Private Methods (3)
 }

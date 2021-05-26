@@ -65,7 +65,6 @@ export function PopulateGroupList(): void {
     OverlayElements.groupList.selectedIndex = 0;
 }
 
-
 const scale = d3.scaleOrdinal(d3.schemeCategory10)
 export function SetCurrentGroup(): void {
     // TODO: Relier avec graphd3js

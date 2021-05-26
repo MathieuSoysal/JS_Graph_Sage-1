@@ -1,5 +1,5 @@
-import { Selector } from '../main/Selector';
-import { Edge, Loop, Node } from '../main/Types';
+import { Edge, Loop, Node } from "../main/graph-gestionnaire/Types";
+import { Selector } from "../main/selector-gestionnaire/Selector";
 
 describe('selectElement should change element attribute', () => {
     it('for node', async () => {

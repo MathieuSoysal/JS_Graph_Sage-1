@@ -587,7 +587,7 @@ function ManageEdges() {
 
 function RefreshEdge() {
     links.style("stroke", function (d) {
-        return (d.isSelected == true) ? "red" : customColorScale(d.group);
+        return (d.isSelected == true) ? "red" : "blue";
     });
 }
 

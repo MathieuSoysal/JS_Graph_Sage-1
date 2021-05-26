@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { GraphCustom } from '../GraphCustom';
 import { Loop } from "../Types";
+import SvgsManager from './SvgsManager';
 
 /**
  * This class manages all svg loops in the displayed svg 
@@ -18,8 +19,8 @@ export class LoopManager {
 
     // #region Constructors (1)
 
-    constructor(graph: GraphCustom) {
-        this.svg = graph.svg;
+    constructor(svgsManager: SvgsManager, graph: GraphCustom) {
+        this.svg = svgsManager.svg;
         this.graph = graph;
         this.update();
     }
@@ -75,7 +76,7 @@ export class LoopManager {
     }
 
     // #endregion Private Methods (2)
-    /**
+/**
          *         .on("mouseover", function (currentData) {
                 currentObject = new ElementCustom(currentData, GraphType.LoopType)
             })
