@@ -5,7 +5,7 @@ import SvgsManager from './SvgsManager';
 /**
  * This class manages all svg arrows in the displayed svg 
  */
-export class ArrowManager {
+export default class ArrowManager {
     // #region Properties (3)
 
     private graph: GraphCustom;

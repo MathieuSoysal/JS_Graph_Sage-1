@@ -1,6 +1,9 @@
 import { GraphCustom } from './graph-gestionnaire/GraphCustom';
 import { CustomWarn as customWarn } from './InterfaceAndMisc';
-import { Node, Edge, Loop, ValueRegisterer } from './graph-gestionnaire/Types';
+import Node from "./graph-gestionnaire/elements/Node";
+import Loop from "./graph-gestionnaire/elements/Loop";
+import ValueRegisterer from "./graph-gestionnaire/elements/ValueRegisterer";
+import Edge from "./graph-gestionnaire/elements/Edge";
 class Command {
     // #region Properties (4)
 

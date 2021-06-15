@@ -30976,6 +30976,10 @@ function KeyboardEventInit() {
                 //L for Loops
                 result = new UserAction(GraphCustom_1.graph.addLoopOnSelectedNodes(), "Add loop on selected nodes");
                 break;
+            case 77:
+                //m for Loops
+                GraphCustom_1.graph.saveSelectedElements();
+                break;
             case 82:
                 //R to reset selection
                 GraphCustom_1.graph.resetSelection();
@@ -31749,6 +31753,14 @@ class GraphCustom {
         return lowestID.toString(10);
     }
     /**
+     * save selected elements in singles selector
+     */
+    saveSelectedElements() {
+        let selectionsRectangle = this.svgsManager.getRectangleSelection();
+        this.svgsManager.resetRectangleSelection();
+        selectionsRectangle.forEach(e => this.selector.selectElement(e));
+    }
+    /**
      * Adds a thrid point in center of two given points.
      *
      * @param pa the first point
@@ -32363,6 +32375,15 @@ class SvgsManager {
             loop.target = this._graph.nodes[this._graph.nodes.indexOf(loop.source)];
         });
     }
+    getRectangleSelection() {
+        return this._selection.getSelectedElement();
+    }
+    /**
+     * reset rectangle selection
+     */
+    resetRectangleSelection() {
+        this._selection.resetSelection();
+    }
 }
 exports.default = SvgsManager;
 
@@ -32535,6 +32556,9 @@ class SelectionRectangle {
     }
     resetSelection() {
         this._selector.resetSelection();
+    }
+    getSelectedElement() {
+        return this._selector.selectedElements;
     }
     /**
      * Set a new selection positions and deselects all items that are no longer on the new selection

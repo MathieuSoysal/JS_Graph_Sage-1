@@ -168,6 +168,10 @@ export function KeyboardEventInit(): void {
                 //L for Loops
                 result = new UserAction(graph.addLoopOnSelectedNodes(), "Add loop on selected nodes");
                 break;
+            case 77:
+                //m for Loops
+                graph.saveSelectedElements();
+                break;
             case 82:
                 //R to reset selection
                 graph.resetSelection();

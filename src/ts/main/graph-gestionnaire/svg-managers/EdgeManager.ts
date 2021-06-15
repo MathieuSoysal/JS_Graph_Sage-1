@@ -1,13 +1,14 @@
 import * as d3 from "d3";
 import { D3DragEvent } from "d3";
 import { GraphCustom } from '../GraphCustom';
-import { Node, Edge } from "../Types";
+import Node from "../elements/Node";
+import Edge from "../elements/Edge";
 import SvgsManager from './SvgsManager';
 
 /**
  * This class manages all adges in the displayed svg 
  */
-export class EdgeManager {
+export default class EdgeManager {
     // #region Properties (5)
 
     private _graph: GraphCustom;

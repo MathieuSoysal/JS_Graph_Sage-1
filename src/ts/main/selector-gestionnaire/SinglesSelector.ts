@@ -1,4 +1,7 @@
-import { Edge, Element, Loop, Node } from "../graph-gestionnaire/Types";
+import { Element } from "../graph-gestionnaire/elements/Element";
+import Node from "../graph-gestionnaire/elements/Node";
+import Loop from "../graph-gestionnaire/elements/Loop";
+import Edge from "../graph-gestionnaire/elements/Edge";
 
 export class SinglesSelector {
     // #region Properties (3)

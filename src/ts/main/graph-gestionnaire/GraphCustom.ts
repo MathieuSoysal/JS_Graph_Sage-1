@@ -3,7 +3,11 @@ import { SageCommand } from "../Connection";
 import { CustomWarn as customWarn, InitInterface, PopulateGroupList } from "../InterfaceAndMisc";
 import { SinglesSelector } from '../selector-gestionnaire/SinglesSelector';
 import SvgsManager from "./svg-managers/SvgsManager";
-import { Edge, Loop, Node, Point, ValueRegisterer } from './Types';
+import Node from "./elements/Node";
+import Loop from "./elements/Loop";
+import ValueRegisterer from "./elements/ValueRegisterer";
+import Point from "./elements/Point";
+import Edge from "./elements/Edge";
 import { HtmlArranger } from './Utils';
 
 type SvgInHtml = HTMLElement & SVGElement;
@@ -127,7 +131,7 @@ export class GraphCustom {
 
     // #endregion Public Static Methods (1)
 
-    // #region Public Methods (40)
+    // #region Public Methods (41)
 
     public FillGroupFromGraph(g: GraphData): void {
         this._groupList = [];
@@ -515,6 +519,15 @@ export class GraphCustom {
     }
 
     /**
+     * save selected elements in singles selector
+     */
+    public saveSelectedElements(): void {
+        let selectionsRectangle = this.svgsManager.getRectangleSelection();
+        this.svgsManager.resetRectangleSelection();
+        selectionsRectangle.forEach(e => this.selector.selectElement(e));
+    }
+
+    /**
      * Sets a new name on a given element, if the new name is already defined, set the old name.
      * 
      * @param valueRegisterer contains the element, new name, old name.
@@ -693,7 +706,7 @@ export class GraphCustom {
         this.nodes.forEach(d => d.fixed = this.frozen);
     }
 
-    // #endregion Public Methods (40)
+    // #endregion Public Methods (41)
 
     // #region Private Static Methods (1)
 

@@ -1,12 +1,12 @@
 import * as d3 from "d3";
 import { GraphCustom } from '../GraphCustom';
-import { Loop } from "../Types";
+import Loop from "../elements/Loop";
 import SvgsManager from './SvgsManager';
 
 /**
  * This class manages all svg loops in the displayed svg 
  */
-export class LoopManager {
+export default class LoopManager {
     // #region Properties (4)
 
     private graph: GraphCustom;
@@ -74,4 +74,6 @@ export class LoopManager {
     private refreshLoops(): void {
         this.loops.style("stroke", d => d.isSelected ? "red" : d.color);
     }
+
+    // #endregion Private Methods (2)
 }

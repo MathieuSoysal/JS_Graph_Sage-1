@@ -1,4 +1,5 @@
 export class HtmlArranger {
+    // #region Public Static Methods (1)
 
     /**
      * Puts all elements that have className as a class before the Node elements.
@@ -12,4 +13,6 @@ export class HtmlArranger {
         let firstNode = document.getElementsByClassName("node")[0]!;
         firstNode.parentNode!.insertBefore(elem, firstNode);
     }
+
+    // #endregion Public Static Methods (1)
 }

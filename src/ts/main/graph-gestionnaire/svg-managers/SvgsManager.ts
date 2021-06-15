@@ -1,26 +1,26 @@
 import { GraphCustom } from '../GraphCustom';
-import { LoopManager } from './LoopManager';
+import LoopManager from './LoopManager';
 import NodeManager from './NodeManager';
-import { EdgeManager } from './EdgeManager';
+import EdgeManager from './EdgeManager';
 import d3 = require('d3');
-import { ArrowManager } from './ArrowManager';
-import { SelectionRectangle } from '../../selector-gestionnaire/SelectionRectangle';
+import ArrowManager from './ArrowManager';
+import SelectionRectangle from '../../selector-gestionnaire/SelectionRectangle';
 import SelectorManager from '../../selector-gestionnaire/SelectorManager';
+import { Element } from '../elements/Element';
 
 export default class SvgsManager {
-    // #region Properties (7)
+    // #region Properties (8)
 
     private _arrowManager: ArrowManager;
     private _edgeManager: EdgeManager;
+    private _graph: GraphCustom;
     private _loopManager: LoopManager;
     private _nodeManager: NodeManager;
-    private _svg: d3.Selection<any, unknown, HTMLElement, any>;
-    private _graph: GraphCustom;
     private _selection: SelectionRectangle;
     private _selectorManager: SelectorManager;
+    private _svg: d3.Selection<any, unknown, HTMLElement, any>;
 
-    // #endregion Properties (7)
-    // #endregion Properties (7)
+    // #endregion Properties (8)
 
     // #region Constructors (1)
 
@@ -57,7 +57,7 @@ export default class SvgsManager {
 
     // #endregion Constructors (1)
 
-    // #region Public Accessors (9)
+    // #region Public Accessors (8)
 
     public get arrowManager(): ArrowManager {
         return this._arrowManager;
@@ -87,9 +87,20 @@ export default class SvgsManager {
 
     public get width() { return document.documentElement.clientWidth * 0.8 }
 
-    // #endregion Public Accessors (9)
+    // #endregion Public Accessors (8)
 
     // #region Public Methods (3)
+
+    public getRectangleSelection(): Array<Element> {
+        return this._selection.getSelectedElement();
+    }
+
+    /**
+     * reset rectangle selection
+     */
+    public resetRectangleSelection(): void {
+        this._selection.resetSelection();
+    }
 
     public updateAll() {
         this.nodeManager.update();
@@ -100,7 +111,7 @@ export default class SvgsManager {
 
     // #endregion Public Methods (3)
 
-    // #region Private Methods (4)
+    // #region Private Methods (3)
 
     private initBrush() {
         let my = this;
@@ -141,5 +152,5 @@ export default class SvgsManager {
         });
     }
 
-    // #endregion Private Methods (4)
+    // #endregion Private Methods (3)
 }

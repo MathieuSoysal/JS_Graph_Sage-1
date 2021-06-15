@@ -1,7 +1,9 @@
-import { EdgeManager } from '../graph-gestionnaire/svg-managers/EdgeManager';
+import EdgeManager from '../graph-gestionnaire/svg-managers/EdgeManager';
 import NodeManager from '../graph-gestionnaire/svg-managers/NodeManager';
-import { LoopManager } from '../graph-gestionnaire/svg-managers/LoopManager';
-import { Node, Edge, Loop } from '../graph-gestionnaire/Types';
+import LoopManager from '../graph-gestionnaire/svg-managers/LoopManager';
+import Node from "../graph-gestionnaire/elements/Node";
+import Loop from "../graph-gestionnaire/elements/Loop";
+import Edge from "../graph-gestionnaire/elements/Edge";
 
 export default class SelectorManager {
     // #region Properties (3)

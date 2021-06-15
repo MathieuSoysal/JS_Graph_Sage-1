@@ -1,12 +1,16 @@
 import { Segment } from './Segment';
-import { Node, Edge, Loop, Point } from '../graph-gestionnaire/Types';
+import { Element } from '../graph-gestionnaire/elements/Element';
+import Node from "../graph-gestionnaire/elements/Node";
+import Loop from "../graph-gestionnaire/elements/Loop";
+import Point from "../graph-gestionnaire/elements/Point";
+import Edge from "../graph-gestionnaire/elements/Edge";
 import { SinglesSelector } from './SinglesSelector';
 import { GraphCustom } from '../graph-gestionnaire/GraphCustom';
 
 /**
  * the SelectionRectangle class is used for brush
  */
-export class SelectionRectangle {
+export default class SelectionRectangle {
     // #region Properties (9)
 
     private _selector: SinglesSelector;
@@ -29,7 +33,11 @@ export class SelectionRectangle {
 
     // #endregion Constructors (1)
 
-    // #region Public Methods (7)
+    // #region Public Methods (8)
+
+    public getSelectedElement(): Array<Element> {
+        return this._selector.selectedElements;
+    }
 
     /**
      * Check if given edge is inside this rectangle
@@ -112,7 +120,7 @@ export class SelectionRectangle {
         this.selectsAllItemsThatAreInsideSelection(graph);
     }
 
-    // #endregion Public Methods (7)
+    // #endregion Public Methods (8)
 
     // #region Private Methods (3)
 

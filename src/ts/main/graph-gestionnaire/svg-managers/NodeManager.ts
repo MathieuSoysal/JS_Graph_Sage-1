@@ -3,7 +3,8 @@ import { D3DragEvent } from "d3";
 import { CommandsRepository, myManager } from "../../CommandePatern";
 import { UpdateGraphProperties } from "../../Connection";
 import { GraphCustom } from '../GraphCustom';
-import { Node, ValueRegisterer } from '../Types';
+import Node from "../elements/Node";
+import ValueRegisterer from "../elements/ValueRegisterer";
 import SvgsManager from './SvgsManager';
 
 /**

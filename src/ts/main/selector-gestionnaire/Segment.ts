@@ -1,4 +1,5 @@
-import { Edge, Point } from "../graph-gestionnaire/Types";
+import Point from "../graph-gestionnaire/elements/Point";
+import Edge from "../graph-gestionnaire/elements/Edge";
 
 export class Segment {
     // #region Properties (2)

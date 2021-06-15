@@ -1,9 +1,11 @@
-import { Edge, Loop, Node } from "../main/graph-gestionnaire/Types";
-import { Selector } from "../main/selector-gestionnaire/Selector";
+import Edge from "../main/graph-gestionnaire/elements/Edge";
+import Loop from "../main/graph-gestionnaire/elements/Loop";
+import Node from "../main/graph-gestionnaire/elements/Node";
+import { SinglesSelector } from "../main/selector-gestionnaire/SinglesSelector";
 
 describe('selectElement should change element attribute', () => {
     it('for node', async () => {
-        let selector = new Selector();
+        let selector = new SinglesSelector();
         let node = new Node("", "", 4, 5, true, false);
         selector.selectElement(node);
 
@@ -11,7 +13,7 @@ describe('selectElement should change element attribute', () => {
     });
 
     it('for edge', async () => {
-        let selector = new Selector();
+        let selector = new SinglesSelector();
         let edge = new Edge(3, null as any, "", 1, null as any, "", false);
         selector.selectElement(edge);
 
@@ -19,7 +21,7 @@ describe('selectElement should change element attribute', () => {
     });
 
     it('for loop', async () => {
-        let selector = new Selector();
+        let selector = new SinglesSelector();
         let loop = new Loop(new Node("", "", 4, 5, true, false));
         selector.selectElement(loop);
 
@@ -29,7 +31,7 @@ describe('selectElement should change element attribute', () => {
 
 describe('selectElement and deselectElement should not-change element attribute', () => {
     it('for node', async () => {
-        let selector = new Selector();
+        let selector = new SinglesSelector();
         let node = new Node("", "", 4, 5, true, false);
         selector.selectElement(node);
         selector.deselectElement(node);
@@ -38,7 +40,7 @@ describe('selectElement and deselectElement should not-change element attribute'
     });
 
     it('for edge', async () => {
-        let selector = new Selector();
+        let selector = new SinglesSelector();
         let edge = new Edge(3, null as any, "", 1, null as any, "", false);
         selector.selectElement(edge);
         selector.deselectElement(edge);
@@ -47,7 +49,7 @@ describe('selectElement and deselectElement should not-change element attribute'
     });
 
     it('for loop', async () => {
-        let selector = new Selector();
+        let selector = new SinglesSelector();
         let loop = new Loop(new Node("", "", 4, 5, true, false));
         selector.selectElement(loop);
         selector.deselectElement(loop);
@@ -59,7 +61,7 @@ describe('selectElement and deselectElement should not-change element attribute'
 describe('element areSelected test', () => {
     describe('nodesAreSelected test', () => {
         it('should are selected after selection', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let node = new Node("", "", 4, 5, true, false);
             selector.selectElement(node);
 
@@ -67,14 +69,14 @@ describe('element areSelected test', () => {
         });
 
         it('should are not selected befor selection', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             expect(selector.nodesAreSelected()).toBe(false);
         });
     });
 
     describe('edgesAreSelected test', () => {
         it('should are selected after selection', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let edge = new Edge(3, null as any, "", 1, null as any, "", false);
             selector.selectElement(edge);
 
@@ -82,14 +84,14 @@ describe('element areSelected test', () => {
         });
 
         it('should are not selected befor selection', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             expect(selector.edgesAreSelected()).toBe(false);
         });
     });
 // 
     describe('loopsAreSelected test', () => {
         it('should are selected after selection', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let loop = new Loop(new Node("", "", 4, 5, true, false));
             selector.selectElement(loop);
 
@@ -97,7 +99,7 @@ describe('element areSelected test', () => {
         });
 
         it('should are not selected befor selection', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             expect(selector.loopsAreSelected()).toBe(false);
         });
     });
@@ -106,7 +108,7 @@ describe('element areSelected test', () => {
 describe('selectOrUnselectElement', () => {
     describe('should change attribute after one selectOrUnselectElement', () => {
         it('for Node', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let node = new Node("", "", 4, 5, true, false);
             selector.selectOrUnselectElement(node);
 
@@ -114,7 +116,7 @@ describe('selectOrUnselectElement', () => {
         });
 
         it('for Edge', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let edge = new Edge(3, null as any, "", 1, null as any, "", false);
             selector.selectOrUnselectElement(edge);
 
@@ -122,7 +124,7 @@ describe('selectOrUnselectElement', () => {
         });
 
         it('for Loop', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let loop = new Loop(new Node("", "", 4, 5, true, false));
             selector.selectOrUnselectElement(loop);
 
@@ -133,7 +135,7 @@ describe('selectOrUnselectElement', () => {
 
     describe('should not change attribute after two selectOrUnselectElement', () => {
         it('for Node', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let node = new Node("", "", 4, 5, true, false);
             selector.selectOrUnselectElement(node);
             selector.selectOrUnselectElement(node);
@@ -142,7 +144,7 @@ describe('selectOrUnselectElement', () => {
         });
 
         it('for Edge', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let edge = new Edge(3, null as any, "", 1, null as any, "", false);
             selector.selectOrUnselectElement(edge);
             selector.selectOrUnselectElement(edge);
@@ -151,7 +153,7 @@ describe('selectOrUnselectElement', () => {
         });
 
         it('for Loop', async () => {
-            let selector = new Selector();
+            let selector = new SinglesSelector();
             let loop = new Loop(new Node("", "", 4, 5, true, false));
             selector.selectOrUnselectElement(loop);
             selector.selectOrUnselectElement(loop);
