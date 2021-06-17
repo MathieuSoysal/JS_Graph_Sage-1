@@ -59,10 +59,10 @@ export default class EdgeManager {
      * Updates edges based on data from this.graph
      */
     public update(): void {
-        this.links = this.svg.selectAll(".link")
-            .data(this._graph.links);
+        const getEdgeInSVG = (): d3.Selection<d3.BaseType, Edge, d3.BaseType, unknown> =>
+            this.svg.selectAll(".link").data(this._graph.links);
 
-        this.links.enter()
+        getEdgeInSVG().enter()
             .append("line")
             .attr("class", "link directed")
             .attr("marker-end", "url(#directed)")
@@ -70,13 +70,15 @@ export default class EdgeManager {
             .on("click", (_, e) => { this._graph.elementSelector.selectOrUnselectElement(e); this.refreshEdge() })
             .call(this.drag());
 
+        this.links = getEdgeInSVG();
+
         this.refreshPosEdges();
 
         this.refreshEdge();
 
         this.links.exit().remove();
 
-        this.manageEdgeLabels;
+        this.manageEdgeLabels();
     }
 
     // #endregion Public Methods (4)

@@ -31275,12 +31275,10 @@ class GraphCustom {
     addEdgesOnSelection() {
         let selectedNodes = this.svgsManager.nodeManager.nodes.filter(n => n.isSelected).data();
         if (selectedNodes.length > 0) {
-            let isFirst = true;
             for (let i = 0; i < selectedNodes.length; i++) {
                 for (let j = i + 1; j < selectedNodes.length; j++) {
                     var newLink = this.createEdge(selectedNodes[i], selectedNodes[j]);
-                    CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.AddEdgeCommand(this, newLink, isFirst));
-                    isFirst = false;
+                    CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.AddEdgeCommand(this, newLink, i + j === 1));
                 }
             }
             this.svgsManager.edgeManager.update();
@@ -31424,7 +31422,7 @@ class GraphCustom {
             return false;
         }
         let edges = this.selector.selectedEdges;
-        edges.forEach((edge, i) => CommandePatern_1.CommandsRepository.InvertDirectionCommand(this, edge, i == 0));
+        edges.forEach((edge, i) => CommandePatern_1.CommandsRepository.InvertDirectionCommand(this, edge, i === 0));
         return true;
     }
     nodeIsMoved(x, y) {
@@ -32055,19 +32053,19 @@ class EdgeManager {
      * Updates edges based on data from this.graph
      */
     update() {
-        this.links = this.svg.selectAll(".link")
-            .data(this._graph.links);
-        this.links.enter()
+        const getEdgeInSVG = () => this.svg.selectAll(".link").data(this._graph.links);
+        getEdgeInSVG().enter()
             .append("line")
             .attr("class", "link directed")
             .attr("marker-end", "url(#directed)")
             .style("stroke-width", 4)
             .on("click", (_, e) => { this._graph.elementSelector.selectOrUnselectElement(e); this.refreshEdge(); })
             .call(this.drag());
+        this.links = getEdgeInSVG();
         this.refreshPosEdges();
         this.refreshEdge();
         this.links.exit().remove();
-        this.manageEdgeLabels;
+        this.manageEdgeLabels();
     }
     // #endregion Public Methods (4)
     // #region Private Methods (4)

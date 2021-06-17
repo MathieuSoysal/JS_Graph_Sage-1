@@ -208,12 +208,10 @@ export class GraphCustom {
     public addEdgesOnSelection(): boolean {
         let selectedNodes = this.svgsManager.nodeManager.nodes.filter(n => n.isSelected).data();
         if (selectedNodes.length > 0) {
-            let isFirst = true;
             for (let i = 0; i < selectedNodes.length; i++) {
                 for (let j = i + 1; j < selectedNodes.length; j++) {
                     var newLink = this.createEdge(selectedNodes[i]!, selectedNodes[j]!);
-                    myManager.Execute(CommandsRepository.AddEdgeCommand(this, newLink, isFirst));
-                    isFirst = false;
+                    myManager.Execute(CommandsRepository.AddEdgeCommand(this, newLink, i + j === 1));
                 }
             }
             this.svgsManager.edgeManager.update();
@@ -370,7 +368,7 @@ export class GraphCustom {
             return false;
         }
         let edges = this.selector.selectedEdges;
-        edges.forEach((edge, i) => CommandsRepository.InvertDirectionCommand(this, edge, i == 0));
+        edges.forEach((edge, i) => CommandsRepository.InvertDirectionCommand(this, edge, i === 0));
         return true;
     }
 
