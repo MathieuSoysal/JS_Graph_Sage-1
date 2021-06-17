@@ -12,7 +12,7 @@ import SvgsManager from './SvgsManager';
  */
 export default class NodeManager {
     // #region Properties (5)
-
+    private readonly scale = d3.scaleOrdinal(d3.schemeCategory10);
     private _graph: GraphCustom;
     private _svgManager: SvgsManager;
     private node_labels: d3.Selection<d3.BaseType, Node, d3.BaseType, unknown>;
@@ -54,9 +54,8 @@ export default class NodeManager {
      * Updates the style of the selected nodes
      */
     public refreshNodes(): void {
-        const scale = d3.scaleOrdinal(d3.schemeCategory10);
         this.nodes
-            .style("stroke", node => node.isSelected ? "red" : scale(node.group))
+            .style("stroke", node => node.isSelected ? "red" : this.scale(node.group))
             .style("stroke-width", d => d.isSelected ? "3" : "2");
     }
 
@@ -71,6 +70,7 @@ export default class NodeManager {
 
     public remove(node: Node) {
         this.nodes.filter(n => n === node).remove();
+        this.nodes = this.nodes.filter(n => n !== node);
         this.refreshNodes();
     }
 
@@ -90,6 +90,8 @@ export default class NodeManager {
             .attr("r", this._graph.vertex_size)
             .attr("fill", this.color())
             .on("click", (_, d) => { this._graph.selector.selectOrUnselectElement(this._graph.nodes.find(n => n === d)!); this.refreshNodes() })
+            .style("stroke", node => node.isSelected ? "red" : this.scale(node.group))
+            .style("stroke-width", d => d.isSelected ? "3" : "2")
             .call(this.drag());
 
         this.refreshNodes();

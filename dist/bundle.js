@@ -30632,7 +30632,7 @@ function keyof(value) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.myManager = exports.CommandManager = exports.CommandsRepository = void 0;
 const InterfaceAndMisc_1 = __webpack_require__(/*! ./InterfaceAndMisc */ "./src/ts/main/InterfaceAndMisc.ts");
-const Types_1 = __webpack_require__(/*! ./graph-gestionnaire/Types */ "./src/ts/main/graph-gestionnaire/Types.ts");
+const ValueRegisterer_1 = __webpack_require__(/*! ./graph-gestionnaire/elements/ValueRegisterer */ "./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts");
 class Command {
     // #endregion Properties (4)
     // #region Constructors (1)
@@ -30665,7 +30665,7 @@ CommandsRepository.ChangeNameCommand = (graph, value, firstAction = true) => {
     return new Command((v) => graph.setElementName(v), (v) => graph.setElementName(v), value, firstAction);
 };
 CommandsRepository.InvertDirectionCommand = (graph, edge, firstAction = true) => {
-    let value = new Types_1.ValueRegisterer([edge.source, edge.target], [edge.target, edge.source], edge);
+    let value = new ValueRegisterer_1.default([edge.source, edge.target], [edge.target, edge.source], edge);
     return new Command((v) => graph.setLinkDirection(v), (v) => graph.setLinkDirection(v), value, firstAction);
 };
 CommandsRepository.MoveNodeCommand = (graph, value, firstAction = true) => {
@@ -31126,7 +31126,11 @@ const CommandePatern_1 = __webpack_require__(/*! ../CommandePatern */ "./src/ts/
 const InterfaceAndMisc_1 = __webpack_require__(/*! ../InterfaceAndMisc */ "./src/ts/main/InterfaceAndMisc.ts");
 const SinglesSelector_1 = __webpack_require__(/*! ../selector-gestionnaire/SinglesSelector */ "./src/ts/main/selector-gestionnaire/SinglesSelector.ts");
 const SvgsManager_1 = __webpack_require__(/*! ./svg-managers/SvgsManager */ "./src/ts/main/graph-gestionnaire/svg-managers/SvgsManager.ts");
-const Types_1 = __webpack_require__(/*! ./Types */ "./src/ts/main/graph-gestionnaire/Types.ts");
+const Node_1 = __webpack_require__(/*! ./elements/Node */ "./src/ts/main/graph-gestionnaire/elements/Node.ts");
+const Loop_1 = __webpack_require__(/*! ./elements/Loop */ "./src/ts/main/graph-gestionnaire/elements/Loop.ts");
+const ValueRegisterer_1 = __webpack_require__(/*! ./elements/ValueRegisterer */ "./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts");
+const Point_1 = __webpack_require__(/*! ./elements/Point */ "./src/ts/main/graph-gestionnaire/elements/Point.ts");
+const Edge_1 = __webpack_require__(/*! ./elements/Edge */ "./src/ts/main/graph-gestionnaire/elements/Edge.ts");
 const Utils_1 = __webpack_require__(/*! ./Utils */ "./src/ts/main/graph-gestionnaire/Utils.ts");
 /**
  * Class representing a Graph
@@ -31144,7 +31148,7 @@ class GraphCustom {
         this.frozen = false;
         this.currentGroupIndex = 0;
         // private currentObject: any | null = null;
-        this.cursorPosition = new Types_1.Point(0, 0);
+        this.cursorPosition = new Point_1.default(0, 0);
         this.selector = new SinglesSelector_1.SinglesSelector();
         this._groupList = [];
         if (graphData === null)
@@ -31202,7 +31206,7 @@ class GraphCustom {
         exports.graph = new GraphCustom(graphData);
     }
     // #endregion Public Static Methods (1)
-    // #region Public Methods (40)
+    // #region Public Methods (41)
     FillGroupFromGraph(g) {
         this._groupList = [];
         g.nodes.forEach(element => {
@@ -31222,7 +31226,7 @@ class GraphCustom {
                 let link = this.links.find(l => {
                     return l.source.name == tuple[0] && l.target.name == tuple[1];
                 });
-                this.SetGroupElement(new Types_1.ValueRegisterer(id, id, link));
+                this.SetGroupElement(new ValueRegisterer_1.default(id, id, link));
             });
             id++;
         });
@@ -31241,7 +31245,7 @@ class GraphCustom {
         colorationList.forEach(coloration => {
             coloration.forEach(name => {
                 let node = this.nodes.find(n => n.name == name);
-                this.SetGroupElement(new Types_1.ValueRegisterer(id, id, node));
+                this.SetGroupElement(new ValueRegisterer_1.default(id, id, node));
             });
             id++;
         });
@@ -31311,7 +31315,7 @@ class GraphCustom {
      * @param isFirst action
      */
     addLoopOnNode(node, isFirst = true) {
-        var newLoop = new Types_1.Loop(node);
+        var newLoop = new Loop_1.default(node);
         CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.AddLoopCommand(this, newLoop, isFirst));
     }
     /**
@@ -31369,7 +31373,7 @@ class GraphCustom {
      */
     createEdge(src, dest) {
         let selected = src.isSelected && dest.isSelected;
-        return new Types_1.Edge(0, dest, "#aaa", 0, src, "", selected);
+        return new Edge_1.default(0, dest, "#aaa", 0, src, "", selected);
     }
     /**
      * create the new node with optional predefinite position.
@@ -31388,7 +31392,7 @@ class GraphCustom {
             newX = this.cursorPosition.x;
             newY = this.cursorPosition.y;
         }
-        return new Types_1.Node("0", this.findLowestIDAvailable(), newX, newY, this.frozen, false);
+        return new Node_1.default("0", this.findLowestIDAvailable(), newX, newY, this.frozen, false);
     }
     /**
      * If the graph is oriented, show the arrows, otherwise hide them.
@@ -31457,11 +31461,11 @@ class GraphCustom {
      * @param _isFirst
      */
     removeElementCommand(element, _isFirst = true) {
-        if (element instanceof Types_1.Node)
+        if (element instanceof Node_1.default)
             this.removeNodeCommand(element, _isFirst);
-        else if (element instanceof Types_1.Edge)
+        else if (element instanceof Edge_1.default)
             this.removeEdgeCommand(element, _isFirst);
-        else if (element instanceof Types_1.Loop)
+        else if (element instanceof Loop_1.default)
             this.removeLoopCommand(element, _isFirst);
     }
     /**
@@ -31555,6 +31559,14 @@ class GraphCustom {
         this.svgsManager.updateAll();
     }
     /**
+     * save selected elements in singles selector
+     */
+    saveSelectedElements() {
+        let selectionsRectangle = this.svgsManager.getRectangleSelection();
+        this.svgsManager.resetRectangleSelection();
+        selectionsRectangle.forEach(e => this.selector.selectElement(e));
+    }
+    /**
      * Sets a new name on a given element, if the new name is already defined, set the old name.
      *
      * @param valueRegisterer contains the element, new name, old name.
@@ -31562,11 +31574,11 @@ class GraphCustom {
     setElementName(valueRegisterer) {
         let element = valueRegisterer.element;
         element.name = (element.name == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
-        if (element instanceof Types_1.Edge)
+        if (element instanceof Edge_1.default)
             this.svgsManager.edgeManager.refreshEdgeLabels();
-        if (element instanceof Types_1.Loop)
+        if (element instanceof Loop_1.default)
             this.svgsManager.loopManager.refreshLoopLabels();
-        if (element instanceof Types_1.Node)
+        if (element instanceof Node_1.default)
             this.svgsManager.nodeManager.refreshNodeLabels();
     }
     /**
@@ -31576,12 +31588,12 @@ class GraphCustom {
      */
     setGroupElement(valueRegisterer) {
         // TODO: { element: Node | Edge | Loop, newValue: string, oldValue: string }
-        if (valueRegisterer.element instanceof Types_1.Node) {
+        if (valueRegisterer.element instanceof Node_1.default) {
             let node = this.nodes.find(n => n === valueRegisterer.element);
             node.group = (node.group == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
             this.svgsManager.nodeManager.update();
         }
-        else if (valueRegisterer.element instanceof Types_1.Edge) {
+        else if (valueRegisterer.element instanceof Edge_1.default) {
             let edge = this.links.find(e => e === valueRegisterer.element);
             edge.group = (edge.group == valueRegisterer.newValue) ? valueRegisterer.oldValue : valueRegisterer.newValue;
             this.svgsManager.edgeManager.update();
@@ -31603,7 +31615,7 @@ class GraphCustom {
             let isFirst = true;
             for (const selectedNode of selectedNodes) {
                 if (selectedNode.group != this.groupList[this.currentGroupIndex]) {
-                    let vr = new Types_1.ValueRegisterer(selectedNode.group, this.groupList[this.currentGroupIndex], selectedNode);
+                    let vr = new ValueRegisterer_1.default(selectedNode.group, this.groupList[this.currentGroupIndex], selectedNode);
                     CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.ChangeGroupCommand(this, vr, isFirst));
                     isFirst = false;
                 }
@@ -31654,7 +31666,7 @@ class GraphCustom {
      * @param isFirst
      */
     subdivideEdge(edge, isFirst = true) {
-        let pos = this.third_point_of_curved_edge(new Types_1.Point(edge.source.x, edge.source.y), new Types_1.Point(edge.target.x, edge.target.y), 0);
+        let pos = this.third_point_of_curved_edge(new Point_1.default(edge.source.x, edge.source.y), new Point_1.default(edge.target.x, edge.target.y), 0);
         let newNode = this.createNode(pos);
         CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.AddNodeCommand(this, newNode, isFirst));
         CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.AddEdgeCommand(this, this.createEdge(newNode, edge.source), false));
@@ -31715,7 +31727,7 @@ class GraphCustom {
         this.frozen = !this.frozen;
         this.nodes.forEach(d => d.fixed = this.frozen);
     }
-    // #endregion Public Methods (40)
+    // #endregion Public Methods (41)
     // #region Private Static Methods (1)
     /**
      *
@@ -31727,7 +31739,7 @@ class GraphCustom {
         for (let i = 0; i < graphP.nodes.length; i++) {
             let nodeInfo = graphP.nodes[i];
             let nodePos = graphP.pos[i];
-            result.push(new Types_1.Node(nodeInfo.group, nodeInfo.name, nodePos[0], nodePos[1], false, false));
+            result.push(new Node_1.default(nodeInfo.group, nodeInfo.name, nodePos[0], nodePos[1], false, false));
         }
         return result;
     }
@@ -31753,14 +31765,6 @@ class GraphCustom {
         return lowestID.toString(10);
     }
     /**
-     * save selected elements in singles selector
-     */
-    saveSelectedElements() {
-        let selectionsRectangle = this.svgsManager.getRectangleSelection();
-        this.svgsManager.resetRectangleSelection();
-        selectionsRectangle.forEach(e => this.selector.selectElement(e));
-    }
-    /**
      * Adds a thrid point in center of two given points.
      *
      * @param pa the first point
@@ -31773,91 +31777,13 @@ class GraphCustom {
         var cx = (dx + ox) / 2, cy = (dy + oy) / 2;
         var ny = -(dx - ox), nx = dy - oy;
         var nn = Math.sqrt(nx * nx + ny * ny);
-        return new Types_1.Point(cx + d * nx / nn, cy + d * ny / nn);
+        return new Point_1.default(cx + d * nx / nn, cy + d * ny / nn);
     }
     waitGraphLoadToFreeze(waitingTime) {
         setTimeout(() => this.freezeOrUnfreezeGraph(), waitingTime);
     }
 }
 exports.GraphCustom = GraphCustom;
-
-
-/***/ }),
-
-/***/ "./src/ts/main/graph-gestionnaire/Types.ts":
-/*!*************************************************!*\
-  !*** ./src/ts/main/graph-gestionnaire/Types.ts ***!
-  \*************************************************/
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Loop = exports.ValueRegisterer = exports.Point = exports.Edge = exports.Node = void 0;
-class Node {
-    // #endregion Properties (6)
-    // #region Constructors (1)
-    constructor(group, name, x, y, fixed, isSelected) {
-        this.fixed = fixed;
-        this.group = group;
-        this.isSelected = isSelected;
-        this.name = name;
-        this.x = x;
-        this.y = y;
-    }
-}
-exports.Node = Node;
-class Edge {
-    // #endregion Properties (8)
-    // #region Constructors (1)
-    constructor(strength, target, color, curve, source, name, isSelected, group = "") {
-        this.color = color;
-        this.curve = curve;
-        this.isSelected = isSelected;
-        this.name = name;
-        this.source = source;
-        this.strength = strength;
-        this.target = target;
-        this.group = group;
-    }
-}
-exports.Edge = Edge;
-class Point {
-    // #endregion Properties (2)
-    // #region Constructors (1)
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    // #endregion Constructors (1)
-    // #region Public Methods (1)
-    equals(other) {
-        return this.x === other.x && this.y === other.y;
-    }
-}
-exports.Point = Point;
-class ValueRegisterer {
-    // #endregion Properties (3)
-    // #region Constructors (1)
-    constructor(oldValue, newValue, element) {
-        this.oldValue = oldValue;
-        this.newValue = newValue;
-        this.element = element;
-    }
-}
-exports.ValueRegisterer = ValueRegisterer;
-class Loop {
-    constructor(strengthOrNode, color, curve, source, name, isSelected, group = "") {
-        this.color = color ? color : "#aaa";
-        this.curve = curve ? curve : 20;
-        this.isSelected = isSelected ? isSelected : false;
-        this.name = name ? name : "";
-        this.source = strengthOrNode instanceof Node ? strengthOrNode : source;
-        this.strength = strengthOrNode instanceof Node || strengthOrNode === undefined ? 0 : strengthOrNode;
-        this.target = this.source;
-        this.group = group ? group : "";
-    }
-}
-exports.Loop = Loop;
 
 
 /***/ }),
@@ -31872,6 +31798,7 @@ exports.Loop = Loop;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HtmlArranger = void 0;
 class HtmlArranger {
+    // #region Public Static Methods (1)
     /**
      * Puts all elements that have className as a class before the Node elements.
      *
@@ -31889,6 +31816,132 @@ exports.HtmlArranger = HtmlArranger;
 
 /***/ }),
 
+/***/ "./src/ts/main/graph-gestionnaire/elements/Edge.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/main/graph-gestionnaire/elements/Edge.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class Edge {
+    // #endregion Properties (8)
+    // #region Constructors (1)
+    constructor(strength, target, color, curve, source, name, isSelected, group = "") {
+        this.color = color;
+        this.curve = curve;
+        this.isSelected = isSelected;
+        this.name = name;
+        this.source = source;
+        this.strength = strength;
+        this.target = target;
+        this.group = group;
+    }
+}
+exports.default = Edge;
+
+
+/***/ }),
+
+/***/ "./src/ts/main/graph-gestionnaire/elements/Loop.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/main/graph-gestionnaire/elements/Loop.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Node_1 = __webpack_require__(/*! ./Node */ "./src/ts/main/graph-gestionnaire/elements/Node.ts");
+class Loop {
+    constructor(strengthOrNode, color, curve, source, name, isSelected, group = "") {
+        this.color = color ? color : "#aaa";
+        this.curve = curve ? curve : 20;
+        this.isSelected = isSelected ? isSelected : false;
+        this.name = name ? name : "";
+        this.source = strengthOrNode instanceof Node_1.default ? strengthOrNode : source;
+        this.strength = strengthOrNode instanceof Node_1.default || strengthOrNode === undefined ? 0 : strengthOrNode;
+        this.target = this.source;
+        this.group = group ? group : "";
+    }
+}
+exports.default = Loop;
+
+
+/***/ }),
+
+/***/ "./src/ts/main/graph-gestionnaire/elements/Node.ts":
+/*!*********************************************************!*\
+  !*** ./src/ts/main/graph-gestionnaire/elements/Node.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class Node {
+    // #endregion Properties (6)
+    // #region Constructors (1)
+    constructor(group, name, x, y, fixed, isSelected) {
+        this.fixed = fixed;
+        this.group = group;
+        this.isSelected = isSelected;
+        this.name = name;
+        this.x = x;
+        this.y = y;
+    }
+}
+exports.default = Node;
+
+
+/***/ }),
+
+/***/ "./src/ts/main/graph-gestionnaire/elements/Point.ts":
+/*!**********************************************************!*\
+  !*** ./src/ts/main/graph-gestionnaire/elements/Point.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class Point {
+    // #endregion Properties (2)
+    // #region Constructors (1)
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    // #endregion Constructors (1)
+    // #region Public Methods (1)
+    equals(other) {
+        return this.x === other.x && this.y === other.y;
+    }
+}
+exports.default = Point;
+
+
+/***/ }),
+
+/***/ "./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts":
+/*!********************************************************************!*\
+  !*** ./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts ***!
+  \********************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class ValueRegisterer {
+    // #endregion Properties (3)
+    // #region Constructors (1)
+    constructor(oldValue, newValue, element) {
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+        this.element = element;
+    }
+}
+exports.default = ValueRegisterer;
+
+
+/***/ }),
+
 /***/ "./src/ts/main/graph-gestionnaire/svg-managers/ArrowManager.ts":
 /*!*********************************************************************!*\
   !*** ./src/ts/main/graph-gestionnaire/svg-managers/ArrowManager.ts ***!
@@ -31897,7 +31950,6 @@ exports.HtmlArranger = HtmlArranger;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ArrowManager = void 0;
 /**
  * This class manages all svg arrows in the displayed svg
  */
@@ -31950,7 +32002,7 @@ class ArrowManager {
             this.hideArrows();
     }
 }
-exports.ArrowManager = ArrowManager;
+exports.default = ArrowManager;
 
 
 /***/ }),
@@ -31963,7 +32015,6 @@ exports.ArrowManager = ArrowManager;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EdgeManager = void 0;
 const d3 = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
 /**
  * This class manages all adges in the displayed svg
@@ -32063,7 +32114,7 @@ class EdgeManager {
         this._svgManager.nodeManager.moveSingleNode(subject.target, deltaX, deltaY);
     }
 }
-exports.EdgeManager = EdgeManager;
+exports.default = EdgeManager;
 
 
 /***/ }),
@@ -32076,7 +32127,6 @@ exports.EdgeManager = EdgeManager;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.LoopManager = void 0;
 /**
  * This class manages all svg loops in the displayed svg
  */
@@ -32125,7 +32175,7 @@ class LoopManager {
         this.loops.style("stroke", d => d.isSelected ? "red" : d.color);
     }
 }
-exports.LoopManager = LoopManager;
+exports.default = LoopManager;
 
 
 /***/ }),
@@ -32141,7 +32191,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const d3 = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
 const CommandePatern_1 = __webpack_require__(/*! ../../CommandePatern */ "./src/ts/main/CommandePatern.ts");
 const Connection_1 = __webpack_require__(/*! ../../Connection */ "./src/ts/main/Connection.ts");
-const Types_1 = __webpack_require__(/*! ../Types */ "./src/ts/main/graph-gestionnaire/Types.ts");
+const ValueRegisterer_1 = __webpack_require__(/*! ../elements/ValueRegisterer */ "./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts");
 /**
  * This class manages all svg nodes in the displayed svg
  */
@@ -32149,6 +32199,8 @@ class NodeManager {
     // #endregion Properties (5)
     // #region Constructors (1)
     constructor(svgsManager, graph) {
+        // #region Properties (5)
+        this.scale = d3.scaleOrdinal(d3.schemeCategory10);
         this._svgManager = svgsManager;
         this.svg = svgsManager.svg;
         this._graph = graph;
@@ -32172,9 +32224,8 @@ class NodeManager {
      * Updates the style of the selected nodes
      */
     refreshNodes() {
-        const scale = d3.scaleOrdinal(d3.schemeCategory10);
         this.nodes
-            .style("stroke", node => node.isSelected ? "red" : scale(node.group))
+            .style("stroke", node => node.isSelected ? "red" : this.scale(node.group))
             .style("stroke-width", d => d.isSelected ? "3" : "2");
     }
     /**
@@ -32187,6 +32238,7 @@ class NodeManager {
     }
     remove(node) {
         this.nodes.filter(n => n === node).remove();
+        this.nodes = this.nodes.filter(n => n !== node);
         this.refreshNodes();
     }
     /**
@@ -32204,6 +32256,8 @@ class NodeManager {
             .attr("r", this._graph.vertex_size)
             .attr("fill", this.color())
             .on("click", (_, d) => { this._graph.selector.selectOrUnselectElement(this._graph.nodes.find(n => n === d)); this.refreshNodes(); })
+            .style("stroke", node => node.isSelected ? "red" : this.scale(node.group))
+            .style("stroke-width", d => d.isSelected ? "3" : "2")
             .call(this.drag());
         this.refreshNodes();
         this.manageNodeLabels();
@@ -32235,7 +32289,7 @@ class NodeManager {
             let node = this._graph.getMovedNode();
             if (node) {
                 let finalPos = [event.x, event.y];
-                var positions = new Types_1.ValueRegisterer([node.x, node.y], finalPos, node);
+                var positions = new ValueRegisterer_1.default([node.x, node.y], finalPos, node);
                 CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.MoveNodeCommand(this._graph, positions));
                 Connection_1.UpdateGraphProperties("Node's positions changed");
             }
@@ -32280,12 +32334,11 @@ const ArrowManager_1 = __webpack_require__(/*! ./ArrowManager */ "./src/ts/main/
 const SelectionRectangle_1 = __webpack_require__(/*! ../../selector-gestionnaire/SelectionRectangle */ "./src/ts/main/selector-gestionnaire/SelectionRectangle.ts");
 const SelectorManager_1 = __webpack_require__(/*! ../../selector-gestionnaire/SelectorManager */ "./src/ts/main/selector-gestionnaire/SelectorManager.ts");
 class SvgsManager {
-    // #endregion Properties (7)
-    // #endregion Properties (7)
+    // #endregion Properties (8)
     // #region Constructors (1)
     constructor(graph) {
         this._graph = graph;
-        this._selection = new SelectionRectangle_1.SelectionRectangle();
+        this._selection = new SelectionRectangle_1.default();
         this._svg = d3.select("#graphFrame").append("svg")
             .attr("id", "svg")
             .attr("width", this.width)
@@ -32300,17 +32353,17 @@ class SvgsManager {
             .attr('height', 2 * 10000);
         // SVG window
         this.initBrush();
-        this._edgeManager = new EdgeManager_1.EdgeManager(this, graph);
+        this._edgeManager = new EdgeManager_1.default(this, graph);
         this._nodeManager = new NodeManager_1.default(this, graph);
-        this._loopManager = new LoopManager_1.LoopManager(this, graph);
-        this._arrowManager = new ArrowManager_1.ArrowManager(this, graph);
+        this._loopManager = new LoopManager_1.default(this, graph);
+        this._arrowManager = new ArrowManager_1.default(this, graph);
         this._selectorManager = new SelectorManager_1.default(this._nodeManager, this._edgeManager, this._loopManager);
         this.initGraph();
         this.updateAll();
         this.initDblClick();
     }
     // #endregion Constructors (1)
-    // #region Public Accessors (9)
+    // #region Public Accessors (8)
     get arrowManager() {
         return this._arrowManager;
     }
@@ -32331,8 +32384,17 @@ class SvgsManager {
         return this._svg;
     }
     get width() { return document.documentElement.clientWidth * 0.8; }
-    // #endregion Public Accessors (9)
+    // #endregion Public Accessors (8)
     // #region Public Methods (3)
+    getRectangleSelection() {
+        return this._selection.getSelectedElement();
+    }
+    /**
+     * reset rectangle selection
+     */
+    resetRectangleSelection() {
+        this._selection.resetSelection();
+    }
     updateAll() {
         this.nodeManager.update();
         this.edgeManager.update();
@@ -32340,7 +32402,7 @@ class SvgsManager {
         this.arrowManager.update();
     }
     // #endregion Public Methods (3)
-    // #region Private Methods (4)
+    // #region Private Methods (3)
     initBrush() {
         let my = this;
         function brushed({ selection }) {
@@ -32375,15 +32437,6 @@ class SvgsManager {
             loop.target = this._graph.nodes[this._graph.nodes.indexOf(loop.source)];
         });
     }
-    getRectangleSelection() {
-        return this._selection.getSelectedElement();
-    }
-    /**
-     * reset rectangle selection
-     */
-    resetRectangleSelection() {
-        this._selection.resetSelection();
-    }
 }
 exports.default = SvgsManager;
 
@@ -32399,16 +32452,16 @@ exports.default = SvgsManager;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Segment = void 0;
-const Types_1 = __webpack_require__(/*! ../graph-gestionnaire/Types */ "./src/ts/main/graph-gestionnaire/Types.ts");
+const Point_1 = __webpack_require__(/*! ../graph-gestionnaire/elements/Point */ "./src/ts/main/graph-gestionnaire/elements/Point.ts");
 class Segment {
     constructor(startOrEdge, end) {
-        if (startOrEdge instanceof Types_1.Point) {
+        if (startOrEdge instanceof Point_1.default) {
             this.start = startOrEdge;
             this.end = end;
         }
         else {
-            this.start = new Types_1.Point(startOrEdge.source.x, startOrEdge.source.y);
-            this.end = new Types_1.Point(startOrEdge.target.x, startOrEdge.target.y);
+            this.start = new Point_1.default(startOrEdge.source.x, startOrEdge.source.y);
+            this.end = new Point_1.default(startOrEdge.target.x, startOrEdge.target.y);
         }
     }
     // #endregion Constructors (3)
@@ -32493,9 +32546,10 @@ exports.Segment = Segment;
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.SelectionRectangle = void 0;
 const Segment_1 = __webpack_require__(/*! ./Segment */ "./src/ts/main/selector-gestionnaire/Segment.ts");
-const Types_1 = __webpack_require__(/*! ../graph-gestionnaire/Types */ "./src/ts/main/graph-gestionnaire/Types.ts");
+const Node_1 = __webpack_require__(/*! ../graph-gestionnaire/elements/Node */ "./src/ts/main/graph-gestionnaire/elements/Node.ts");
+const Point_1 = __webpack_require__(/*! ../graph-gestionnaire/elements/Point */ "./src/ts/main/graph-gestionnaire/elements/Point.ts");
+const Edge_1 = __webpack_require__(/*! ../graph-gestionnaire/elements/Edge */ "./src/ts/main/graph-gestionnaire/elements/Edge.ts");
 const SinglesSelector_1 = __webpack_require__(/*! ./SinglesSelector */ "./src/ts/main/selector-gestionnaire/SinglesSelector.ts");
 /**
  * the SelectionRectangle class is used for brush
@@ -32507,7 +32561,10 @@ class SelectionRectangle {
         this._selector = new SinglesSelector_1.SinglesSelector();
     }
     // #endregion Constructors (1)
-    // #region Public Methods (7)
+    // #region Public Methods (8)
+    getSelectedElement() {
+        return this._selector.selectedElements;
+    }
     /**
      * Check if given edge is inside this rectangle
      *
@@ -32526,9 +32583,9 @@ class SelectionRectangle {
      * @returns True if is inside, otherwise false.
      */
     hasInside(element) {
-        if (element instanceof Types_1.Node)
+        if (element instanceof Node_1.default)
             return this.hasNodeInside(element);
-        else if (element instanceof Types_1.Edge)
+        else if (element instanceof Edge_1.default)
             return this.hasEdgeInside(element);
         else
             return this.hasLoopInside(element);
@@ -32557,19 +32614,16 @@ class SelectionRectangle {
     resetSelection() {
         this._selector.resetSelection();
     }
-    getSelectedElement() {
-        return this._selector.selectedElements;
-    }
     /**
      * Set a new selection positions and deselects all items that are no longer on the new selection
      *
      * @param selectionPos [[topLeftCorner.x, topLeftCorner.y] , [bottomRightCorner.x, bottomRightCorner.y]]
      */
     setNewSelection(selectionPos) {
-        this.topLeftCorner = new Types_1.Point(selectionPos[0][0], selectionPos[0][1]);
-        this.topRightCorner = new Types_1.Point(selectionPos[1][0], selectionPos[0][1]);
-        this.bottomLefttCorner = new Types_1.Point(selectionPos[0][0], selectionPos[1][1]);
-        this.bottomRightCorner = new Types_1.Point(selectionPos[1][0], selectionPos[1][1]);
+        this.topLeftCorner = new Point_1.default(selectionPos[0][0], selectionPos[0][1]);
+        this.topRightCorner = new Point_1.default(selectionPos[1][0], selectionPos[0][1]);
+        this.bottomLefttCorner = new Point_1.default(selectionPos[0][0], selectionPos[1][1]);
+        this.bottomRightCorner = new Point_1.default(selectionPos[1][0], selectionPos[1][1]);
         this.topBorder = new Segment_1.Segment(this.topLeftCorner, this.topRightCorner);
         this.leftBorder = new Segment_1.Segment(this.topLeftCorner, this.bottomLefttCorner);
         this.rightBorder = new Segment_1.Segment(this.topRightCorner, this.bottomRightCorner);
@@ -32585,7 +32639,7 @@ class SelectionRectangle {
         this.deselectsAllElementsThatAreNoLongerOnSelection();
         this.selectsAllItemsThatAreInsideSelection(graph);
     }
-    // #endregion Public Methods (7)
+    // #endregion Public Methods (8)
     // #region Private Methods (3)
     /**
      * Deselects all items that are no longer on selection
@@ -32611,7 +32665,7 @@ class SelectionRectangle {
         graph.nodes.filter(e => !e.isSelected && this.hasNodeInside(e)).forEach(e => this._selector.selectElement(e));
     }
 }
-exports.SelectionRectangle = SelectionRectangle;
+exports.default = SelectionRectangle;
 
 
 /***/ }),
@@ -32673,7 +32727,8 @@ exports.default = SelectorManager;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SinglesSelector = void 0;
-const Types_1 = __webpack_require__(/*! ../graph-gestionnaire/Types */ "./src/ts/main/graph-gestionnaire/Types.ts");
+const Node_1 = __webpack_require__(/*! ../graph-gestionnaire/elements/Node */ "./src/ts/main/graph-gestionnaire/elements/Node.ts");
+const Edge_1 = __webpack_require__(/*! ../graph-gestionnaire/elements/Edge */ "./src/ts/main/graph-gestionnaire/elements/Edge.ts");
 class SinglesSelector {
     // #endregion Properties (3)
     // #region Constructors (1)
@@ -32703,9 +32758,9 @@ class SinglesSelector {
      */
     deselectElement(element) {
         element.isSelected = false;
-        if (element instanceof Types_1.Node)
+        if (element instanceof Node_1.default)
             this.nodes.delete(element);
-        else if (element instanceof Types_1.Edge)
+        else if (element instanceof Edge_1.default)
             this.edges.delete(element);
         else
             this.loops.delete(element);
@@ -32747,9 +32802,9 @@ class SinglesSelector {
      */
     selectElement(element) {
         element.isSelected = true;
-        if (element instanceof Types_1.Node)
+        if (element instanceof Node_1.default)
             this.nodes.add(element);
-        else if (element instanceof Types_1.Edge)
+        else if (element instanceof Edge_1.default)
             this.edges.add(element);
         else
             this.loops.add(element);
