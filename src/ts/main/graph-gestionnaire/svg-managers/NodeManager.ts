@@ -6,6 +6,7 @@ import { GraphCustom } from '../GraphCustom';
 import Node from "../elements/Node";
 import ValueRegisterer from "../elements/ValueRegisterer";
 import SvgsManager from './SvgsManager';
+import Point from '../elements/Point';
 
 /**
  * This class manages all svg nodes in the displayed svg 
@@ -16,6 +17,7 @@ export default class NodeManager {
     private _graph: GraphCustom;
     private _svgManager: SvgsManager;
     private node_labels: d3.Selection<d3.BaseType, Node, d3.BaseType, unknown>;
+    private movedNodes: Array<{ oldPosition: Point, node: Node }>;
 
     public nodes: d3.Selection<d3.BaseType, Node, d3.BaseType, unknown>;
     public svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
@@ -31,13 +33,18 @@ export default class NodeManager {
         this.update();
     }
 
+
     // #endregion Constructors (1)
 
     // #region Public Methods (7)
 
     public moveSeveralSelectedNodes(delatX: number, delatY: number) {
-        this.nodes.filter(n => n.isSelected).data().forEach(n => { n.x += delatX; n.y += delatY; });
+        this.getSelectedNodes().forEach(n => { n.x += delatX; n.y += delatY; });
         this.refreshPosNodes();
+    }
+
+    private getSelectedNodes() {
+        return this.nodes.filter(n => n.isSelected).data();
     }
 
     public moveSingleNode(subject: Node, deltaX: number, deltaY: number) {
@@ -113,9 +120,9 @@ export default class NodeManager {
         const dragstarted = (event: D3DragEvent<any, Node, Node>) => {
             this._graph.nodeIsMoved(event.subject.x, event.subject.y);
             if (event.subject.isSelected)
-                this.moveSeveralSelectedNodes(event.dx, event.dy);
+                this.movedNodes = this.getSelectedNodes().map(n => { return { oldPosition: new Point(n.x, n.y), node: n } });
             else
-                this.moveSingleNode(event.subject, event.dx, event.dy);
+                this.movedNodes = [{ oldPosition: new Point(event.subject.x, event.subject.y), node: event.subject }]
             this._svgManager.edgeManager.refreshPosEdges();
         }
 
@@ -127,14 +134,13 @@ export default class NodeManager {
             this._svgManager.edgeManager.refreshPosEdges();
         }
 
-        const dragended = (event: D3DragEvent<any, Node, Node>) => {
-            let node = this._graph.getMovedNode();
-            if (node) {
-                let finalPos = [event.x, event.y];
-                var positions = new ValueRegisterer([node.x, node.y], finalPos, node);
-                myManager.Execute(CommandsRepository.MoveNodeCommand(this._graph, positions));
-                UpdateGraphProperties("Node's positions changed");
+        const dragended = () => {
+            this.movedNodes.forEach((m, i) => {
+                var positions = new ValueRegisterer([m.oldPosition.x, m.oldPosition.y], [m.node.x, m.node.y], m.node);
+                myManager.Execute(CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
             }
+            )
+            UpdateGraphProperties("Node's positions changed");
             this._svgManager.edgeManager.refreshPosEdges();
             this.refreshPosNodes();
         }

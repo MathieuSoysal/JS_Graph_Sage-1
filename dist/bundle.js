@@ -31650,6 +31650,8 @@ class GraphCustom {
         let currrentNode = this.nodes.find(n => n === node);
         currrentNode.x = Pos[0];
         currrentNode.y = Pos[1];
+        this.svgsManager.nodeManager.refreshPosNodes();
+        this.svgsManager.edgeManager.refreshPosEdges();
     }
     /**
      * Updates the old position x and y of a node, with a ValueRegisterer
@@ -32192,6 +32194,7 @@ const d3 = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
 const CommandePatern_1 = __webpack_require__(/*! ../../CommandePatern */ "./src/ts/main/CommandePatern.ts");
 const Connection_1 = __webpack_require__(/*! ../../Connection */ "./src/ts/main/Connection.ts");
 const ValueRegisterer_1 = __webpack_require__(/*! ../elements/ValueRegisterer */ "./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts");
+const Point_1 = __webpack_require__(/*! ../elements/Point */ "./src/ts/main/graph-gestionnaire/elements/Point.ts");
 /**
  * This class manages all svg nodes in the displayed svg
  */
@@ -32209,8 +32212,11 @@ class NodeManager {
     // #endregion Constructors (1)
     // #region Public Methods (7)
     moveSeveralSelectedNodes(delatX, delatY) {
-        this.nodes.filter(n => n.isSelected).data().forEach(n => { n.x += delatX; n.y += delatY; });
+        this.getSelectedNodes().forEach(n => { n.x += delatX; n.y += delatY; });
         this.refreshPosNodes();
+    }
+    getSelectedNodes() {
+        return this.nodes.filter(n => n.isSelected).data();
     }
     moveSingleNode(subject, deltaX, deltaY) {
         subject.x += deltaX;
@@ -32272,9 +32278,9 @@ class NodeManager {
         const dragstarted = (event) => {
             this._graph.nodeIsMoved(event.subject.x, event.subject.y);
             if (event.subject.isSelected)
-                this.moveSeveralSelectedNodes(event.dx, event.dy);
+                this.movedNodes = this.getSelectedNodes().map(n => { return { oldPosition: new Point_1.default(n.x, n.y), node: n }; });
             else
-                this.moveSingleNode(event.subject, event.dx, event.dy);
+                this.movedNodes = [{ oldPosition: new Point_1.default(event.subject.x, event.subject.y), node: event.subject }];
             this._svgManager.edgeManager.refreshPosEdges();
         };
         const dragged = (event) => {
@@ -32284,14 +32290,12 @@ class NodeManager {
                 this.moveSingleNode(event.subject, event.dx, event.dy);
             this._svgManager.edgeManager.refreshPosEdges();
         };
-        const dragended = (event) => {
-            let node = this._graph.getMovedNode();
-            if (node) {
-                let finalPos = [event.x, event.y];
-                var positions = new ValueRegisterer_1.default([node.x, node.y], finalPos, node);
-                CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.MoveNodeCommand(this._graph, positions));
-                Connection_1.UpdateGraphProperties("Node's positions changed");
-            }
+        const dragended = () => {
+            this.movedNodes.forEach((m, i) => {
+                var positions = new ValueRegisterer_1.default([m.oldPosition.x, m.oldPosition.y], [m.node.x, m.node.y], m.node);
+                CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
+            });
+            Connection_1.UpdateGraphProperties("Node's positions changed");
             this._svgManager.edgeManager.refreshPosEdges();
             this.refreshPosNodes();
         };
