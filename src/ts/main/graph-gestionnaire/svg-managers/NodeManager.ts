@@ -78,10 +78,10 @@ export default class NodeManager {
      * Updates edges based on data from this.graph
      */
     public update() {
-        this.nodes = this.svg.selectAll(".node")
+        const getNodesOnSVG = () => this.svg.selectAll(".node")
             .data(this._graph.nodes);
 
-        this.nodes.enter()
+        getNodesOnSVG().enter()
             .append("circle")
             .attr("class", "node")
             .attr("name", n => n.name)
@@ -90,9 +90,9 @@ export default class NodeManager {
             .attr("r", this._graph.vertex_size)
             .attr("fill", this.color())
             .on("click", (_, d) => { this._graph.selector.selectOrUnselectElement(this._graph.nodes.find(n => n === d)!); this.refreshNodes() })
-            .style("stroke", node => node.isSelected ? "red" : this.scale(node.group))
-            .style("stroke-width", d => d.isSelected ? "3" : "2")
             .call(this.drag());
+
+        this.nodes = getNodesOnSVG();
 
         this.refreshNodes();
 
