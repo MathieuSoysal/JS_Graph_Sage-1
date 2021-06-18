@@ -32123,10 +32123,11 @@ exports.default = EdgeManager;
 /*!********************************************************************!*\
   !*** ./src/ts/main/graph-gestionnaire/svg-managers/LoopManager.ts ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const d3 = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
 /**
  * This class manages all svg loops in the displayed svg
  */
@@ -32144,18 +32145,28 @@ class LoopManager {
         this.loop_labels.text(d => (d.name != "None" && d.name != "") ? d.name : "");
     }
     // TODO Refresh
+    color() {
+        const scale = d3.scaleOrdinal(d3.schemeCategory10);
+        return (d) => scale(d.group);
+    }
     /**
      * Updates all loops.
      */
     update() {
-        this.loops = this.svg.selectAll(".loop")
+        const getLoopsInSvg = () => this.svg.selectAll(".loop")
             .data(this.graph.loops);
-        this.loops.enter().append("circle")
+        getLoopsInSvg().enter().append("ellipse")
             .attr("class", "loop")
-            .attr("r", d => d.curve)
-            .on("dblclick", (_, loop) => this.graph.elementSelector.selectOrUnselectElement(loop))
+            .attr("rx", 10)
+            .attr("ry", 12)
+            .attr("name", n => n.name)
+            .on("click", (_, d) => { this.graph.selector.selectOrUnselectElement(this.graph.loops.find(l => l === d)); this.refreshLoops(); })
+            .attr("cx", n => n.source.x)
+            .attr("cy", n => n.source.y - 15)
             .style("stroke", d => d.color)
-            .style("stroke-width", loop => Math.sqrt(loop.strength) + "px");
+            .attr("fill", this.color())
+            .style("stroke-width", 2 + "px");
+        this.loops = getLoopsInSvg();
         this.refreshLoops();
         this.manageLoopLabels();
     }

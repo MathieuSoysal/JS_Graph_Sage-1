@@ -35,19 +35,31 @@ export default class LoopManager {
 
     // TODO Refresh
 
+    private color() {
+        const scale = d3.scaleOrdinal(d3.schemeCategory10);
+        return (d: Loop) => scale(d.group);
+    }
+
     /**
      * Updates all loops.
      */
     public update(): void {
-        this.loops = this.svg.selectAll(".loop")
+        const getLoopsInSvg = (): d3.Selection<d3.BaseType, Loop, d3.BaseType, unknown> => this.svg.selectAll(".loop")
             .data(this.graph.loops);
 
-        this.loops.enter().append("circle")
+        getLoopsInSvg().enter().append("ellipse")
             .attr("class", "loop")
-            .attr("r", d => d.curve)
-            .on("dblclick", (_, loop) => this.graph.elementSelector.selectOrUnselectElement(loop))
+            .attr("rx", 10)
+            .attr("ry", 12)
+            .attr("name", n => n.name)
+            .on("click", (_, d) => { this.graph.selector.selectOrUnselectElement(this.graph.loops.find(l => l === d)!); this.refreshLoops() })
+            .attr("cx", n => n.source.x)
+            .attr("cy", n => n.source.y - 15)
             .style("stroke", d => d.color)
-            .style("stroke-width", loop => Math.sqrt(loop.strength) + "px");
+            .attr("fill", this.color())
+            .style("stroke-width", 2 + "px");
+
+        this.loops = getLoopsInSvg();
 
         this.refreshLoops();
         this.manageLoopLabels();
