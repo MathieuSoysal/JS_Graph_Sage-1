@@ -33,7 +33,6 @@ export default class NodeManager {
         this.update();
     }
 
-
     // #endregion Constructors (1)
 
     // #region Public Methods (7)
@@ -132,6 +131,7 @@ export default class NodeManager {
             else
                 this.moveSingleNode(event.subject, event.dx, event.dy);
             this._svgManager.edgeManager.refreshPosEdges();
+            this._svgManager.loopManager.refreshLoopsPosition();
         }
 
         const dragended = () => {

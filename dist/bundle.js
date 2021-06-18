@@ -32182,6 +32182,14 @@ class LoopManager {
         this.loop_labels.exit().remove();
         this.refreshLoopLabels();
     }
+    /**
+     * Update the position of each loop with its source node
+     */
+    refreshLoopsPosition() {
+        this.loops
+            .attr("cx", n => n.source.x)
+            .attr("cy", n => n.source.y - 15);
+    }
     refreshLoops() {
         this.loops.style("stroke", d => d.isSelected ? "red" : d.color);
     }
@@ -32298,6 +32306,7 @@ class NodeManager {
             else
                 this.moveSingleNode(event.subject, event.dx, event.dy);
             this._svgManager.edgeManager.refreshPosEdges();
+            this._svgManager.loopManager.refreshLoopsPosition();
         };
         const dragended = () => {
             this.movedNodes.forEach((m, i) => {

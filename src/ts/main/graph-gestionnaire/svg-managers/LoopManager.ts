@@ -83,6 +83,15 @@ export default class LoopManager {
         this.refreshLoopLabels();
     }
 
+    /**
+     * Update the position of each loop with its source node 
+     */
+    public refreshLoopsPosition() {
+        this.loops
+            .attr("cx", n => n.source.x)
+            .attr("cy", n => n.source.y - 15)
+    }
+
     private refreshLoops(): void {
         this.loops.style("stroke", d => d.isSelected ? "red" : d.color);
     }
