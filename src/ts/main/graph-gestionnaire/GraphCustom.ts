@@ -427,7 +427,7 @@ export class GraphCustom {
         //Prevent multiple deletion on the same element causing bugs
         if (index != -1) {
             this.loops.splice(this.loops.indexOf(loop), 1);
-            this.svgsManager.loopManager.update();
+            this.svgsManager.loopManager.remove(loop);
         }
     }
 

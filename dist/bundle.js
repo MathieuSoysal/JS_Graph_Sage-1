@@ -31476,7 +31476,7 @@ class GraphCustom {
         //Prevent multiple deletion on the same element causing bugs
         if (index != -1) {
             this.loops.splice(this.loops.indexOf(loop), 1);
-            this.svgsManager.loopManager.update();
+            this.svgsManager.loopManager.remove(loop);
         }
     }
     /**
@@ -32169,6 +32169,15 @@ class LoopManager {
         this.loops = getLoopsInSvg();
         this.refreshLoops();
         this.manageLoopLabels();
+    }
+    /**
+     * Remove a loop from displayed svg
+     *
+     * @param loop that must be deleted
+     */
+    remove(loop) {
+        this.loops.filter(l => l === loop).remove();
+        this.update();
     }
     // #endregion Public Methods (2)
     // #region Private Methods (2)

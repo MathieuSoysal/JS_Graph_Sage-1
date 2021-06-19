@@ -65,6 +65,16 @@ export default class LoopManager {
         this.manageLoopLabels();
     }
 
+    /**
+     * Remove a loop from displayed svg
+     * 
+     * @param loop that must be deleted
+     */
+    public remove(loop: Loop) {
+        this.loops.filter(l => l === loop).remove();
+        this.update();
+    }
+
     // #endregion Public Methods (2)
 
     // #region Private Methods (2)
