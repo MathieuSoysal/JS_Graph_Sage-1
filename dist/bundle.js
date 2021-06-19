@@ -32071,16 +32071,13 @@ class EdgeManager {
                 this.moveSeveralSelectedEdge(event);
             else
                 this.moveSingleEdge(event.subject, event.dx, event.dy);
-            this.refreshPosEdges();
-            this._svgManager.nodeManager.refreshPosNodes();
         };
         const dragged = (event) => {
             if (event.subject.isSelected)
                 this.moveSeveralSelectedEdge(event);
             else
                 this.moveSingleEdge(event.subject, event.dx, event.dy);
-            this.refreshPosEdges();
-            this._svgManager.nodeManager.refreshPosNodes();
+            this._svgManager.refreshElementsPosition();
         };
         // TODO: faire le dragend
         return d3.drag()
@@ -32409,12 +32406,20 @@ class SvgsManager {
     }
     get width() { return document.documentElement.clientWidth * 0.8; }
     // #endregion Public Accessors (8)
-    // #region Public Methods (3)
+    // #region Public Methods (5)
     getRectangleSelection() {
         return this._selection.getSelectedElement();
     }
     getSelectedNodes() {
         return this.nodeManager.nodes.filter(n => n.isSelected).data();
+    }
+    /**
+     * Refresh the position of each element
+     */
+    refreshElementsPosition() {
+        this.nodeManager.refreshPosNodes();
+        this.loopManager.refreshLoopsPosition();
+        this.edgeManager.refreshPosEdges();
     }
     /**
      * reset rectangle selection
@@ -32428,7 +32433,7 @@ class SvgsManager {
         this.loopManager.update();
         this.arrowManager.update();
     }
-    // #endregion Public Methods (3)
+    // #endregion Public Methods (5)
     // #region Private Methods (3)
     initBrush() {
         let my = this;

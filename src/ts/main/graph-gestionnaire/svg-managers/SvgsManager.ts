@@ -90,7 +90,7 @@ export default class SvgsManager {
 
     // #endregion Public Accessors (8)
 
-    // #region Public Methods (3)
+    // #region Public Methods (5)
 
     public getRectangleSelection(): Array<Element> {
         return this._selection.getSelectedElement();
@@ -98,6 +98,15 @@ export default class SvgsManager {
 
     public getSelectedNodes(): Array<Node> {
         return this.nodeManager.nodes.filter(n => n.isSelected).data();
+    }
+
+    /**
+     * Refresh the position of each element
+     */
+    public refreshElementsPosition(): void {
+        this.nodeManager.refreshPosNodes();
+        this.loopManager.refreshLoopsPosition();
+        this.edgeManager.refreshPosEdges();
     }
 
     /**
@@ -114,7 +123,7 @@ export default class SvgsManager {
         this.arrowManager.update();
     }
 
-    // #endregion Public Methods (3)
+    // #endregion Public Methods (5)
 
     // #region Private Methods (3)
 

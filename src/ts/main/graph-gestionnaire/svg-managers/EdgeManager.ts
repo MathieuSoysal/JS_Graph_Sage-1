@@ -91,8 +91,6 @@ export default class EdgeManager {
                 this.moveSeveralSelectedEdge(event);
             else
                 this.moveSingleEdge(event.subject, event.dx, event.dy);
-            this.refreshPosEdges();
-            this._svgManager.nodeManager.refreshPosNodes();
         }
 
         const dragged = (event: D3DragEvent<any, Edge, Edge>) => {
@@ -100,8 +98,7 @@ export default class EdgeManager {
                 this.moveSeveralSelectedEdge(event);
             else
                 this.moveSingleEdge(event.subject, event.dx, event.dy);
-            this.refreshPosEdges();
-            this._svgManager.nodeManager.refreshPosNodes();
+            this._svgManager.refreshElementsPosition();
         }
 
         // TODO: faire le dragend
