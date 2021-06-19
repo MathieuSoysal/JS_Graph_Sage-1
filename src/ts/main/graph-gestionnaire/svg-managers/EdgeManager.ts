@@ -37,7 +37,7 @@ export default class EdgeManager {
      * Updates the style of the selected edges
      */
     public refreshEdge(): void {
-        this.links.style("stroke", d => d.isSelected ? "red" : "blue");
+        this.links.style("stroke", d => d.isSelected ? "red" : d.color);
     }
 
     public refreshEdgeLabels(): void {
@@ -67,6 +67,8 @@ export default class EdgeManager {
             .attr("class", "link directed")
             .attr("marker-end", "url(#directed)")
             .style("stroke-width", 4)
+            .attr("fill", this.color())
+            .style("stroke", d => d.color)
             .on("click", (_, e) => { this._graph.elementSelector.selectOrUnselectElement(e); this.refreshEdge() })
             .call(this.drag());
 
@@ -83,7 +85,12 @@ export default class EdgeManager {
 
     // #endregion Public Methods (4)
 
-    // #region Private Methods (4)
+    // #region Private Methods (5)
+
+    private color() {
+        const scale = d3.scaleOrdinal(d3.schemeCategory10);
+        return (d: Edge) => scale(d.group);
+    }
 
     private drag(): (selection: any) => void {
         const dragstarted = (event: D3DragEvent<any, Edge, Edge>) => {
@@ -136,5 +143,5 @@ export default class EdgeManager {
         this._svgManager.nodeManager.moveSingleNode(subject.target, deltaX, deltaY);
     }
 
-    // #endregion Private Methods (4)
+    // #endregion Private Methods (5)
 }

@@ -32030,7 +32030,7 @@ class EdgeManager {
      * Updates the style of the selected edges
      */
     refreshEdge() {
-        this.links.style("stroke", d => d.isSelected ? "red" : "blue");
+        this.links.style("stroke", d => d.isSelected ? "red" : d.color);
     }
     refreshEdgeLabels() {
         this.edges_labels.text(edge => (edge.name != "None" && edge.name != "") ? edge.name : "");
@@ -32055,6 +32055,8 @@ class EdgeManager {
             .attr("class", "link directed")
             .attr("marker-end", "url(#directed)")
             .style("stroke-width", 4)
+            .attr("fill", this.color())
+            .style("stroke", d => d.color)
             .on("click", (_, e) => { this._graph.elementSelector.selectOrUnselectElement(e); this.refreshEdge(); })
             .call(this.drag());
         this.links = getEdgeInSVG();
@@ -32064,7 +32066,11 @@ class EdgeManager {
         this.manageEdgeLabels();
     }
     // #endregion Public Methods (4)
-    // #region Private Methods (4)
+    // #region Private Methods (5)
+    color() {
+        const scale = d3.scaleOrdinal(d3.schemeCategory10);
+        return (d) => scale(d.group);
+    }
     drag() {
         const dragstarted = (event) => {
             if (event.subject.isSelected)
