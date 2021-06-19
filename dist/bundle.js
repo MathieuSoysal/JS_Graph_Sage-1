@@ -31302,7 +31302,8 @@ class GraphCustom {
      * @param newLoop that added to the graph
      */
     addLoop(newLoop) {
-        this.loops.push(newLoop);
+        if (!this.loops.find(l => l.source === newLoop.source))
+            this.loops.push(newLoop);
         this.svgsManager.loopManager.update();
         Utils_1.HtmlArranger.placeBeforeNode("loop");
     }

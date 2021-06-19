@@ -237,7 +237,8 @@ export class GraphCustom {
      * @param newLoop that added to the graph
      */
     public addLoop(newLoop: Loop): void {
-        this.loops.push(newLoop);
+        if (!this.loops.find(l => l.source === newLoop.source))
+            this.loops.push(newLoop);
         this.svgsManager.loopManager.update();
         HtmlArranger.placeBeforeNode("loop");
     }
