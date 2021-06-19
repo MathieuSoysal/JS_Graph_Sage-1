@@ -463,7 +463,7 @@ export class GraphCustom {
         // TODO SageMath fait automatiquement ça
 
         let isFirst = _isFirst;
-        this.links.forEach(edge => {
+        [...this.links].forEach(edge => {
             if (edge.source === node || edge.target === node) {
                 myManager.Execute(CommandsRepository.SupprEdgeCommand(this, edge, isFirst));
                 isFirst = false;

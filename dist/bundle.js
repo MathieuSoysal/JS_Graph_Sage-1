@@ -31508,7 +31508,7 @@ class GraphCustom {
     removeNodeCommand(node, _isFirst) {
         // TODO SageMath fait automatiquement ça
         let isFirst = _isFirst;
-        this.links.forEach(edge => {
+        [...this.links].forEach(edge => {
             if (edge.source === node || edge.target === node) {
                 CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.SupprEdgeCommand(this, edge, isFirst));
                 isFirst = false;
