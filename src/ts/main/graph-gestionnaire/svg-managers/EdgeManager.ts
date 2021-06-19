@@ -4,21 +4,26 @@ import { GraphCustom } from '../GraphCustom';
 import Node from "../elements/Node";
 import Edge from "../elements/Edge";
 import SvgsManager from './SvgsManager';
+import Point from "../elements/Point";
+import ValueRegisterer from "../elements/ValueRegisterer";
+import { CommandsRepository, myManager } from "../../CommandePatern";
+import { UpdateGraphProperties } from "../../Connection";
 
 /**
  * This class manages all adges in the displayed svg 
  */
 export default class EdgeManager {
-    // #region Properties (5)
+    // #region Properties (6)
 
     private _graph: GraphCustom;
     private _svgManager: SvgsManager;
     private edges_labels!: d3.Selection<d3.BaseType, Edge, d3.BaseType, unknown>;
+    private movedNodes: Array<{ oldPosition: Point, node: Node }>;
     private svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
 
     public links!: d3.Selection<d3.BaseType, Edge, d3.BaseType, unknown>;
 
-    // #endregion Properties (5)
+    // #endregion Properties (6)
 
     // #region Constructors (1)
 
@@ -85,7 +90,7 @@ export default class EdgeManager {
 
     // #endregion Public Methods (4)
 
-    // #region Private Methods (5)
+    // #region Private Methods (6)
 
     private color() {
         const scale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -95,9 +100,12 @@ export default class EdgeManager {
     private drag(): (selection: any) => void {
         const dragstarted = (event: D3DragEvent<any, Edge, Edge>) => {
             if (event.subject.isSelected)
-                this.moveSeveralSelectedEdge(event);
+                this.movedNodes = this.getNodeOfSelectedEdges().map(n => { return { oldPosition: new Point(n.x, n.y), node: n } });
             else
-                this.moveSingleEdge(event.subject, event.dx, event.dy);
+                this.movedNodes = [
+                    { oldPosition: new Point(event.subject.source.x, event.subject.source.y), node: event.subject.source },
+                    { oldPosition: new Point(event.subject.target.x, event.subject.target.y), node: event.subject.target }
+                ]
         }
 
         const dragged = (event: D3DragEvent<any, Edge, Edge>) => {
@@ -108,12 +116,25 @@ export default class EdgeManager {
             this._svgManager.refreshElementsPosition();
         }
 
-        // TODO: faire le dragend
+        const dragended = () => {
+            this.movedNodes.forEach((m, i) => {
+                var positions = new ValueRegisterer([m.oldPosition.x, m.oldPosition.y], [m.node.x, m.node.y], m.node);
+                myManager.Execute(CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
+            })
+            UpdateGraphProperties("Edge's positions changed");
+        }
 
         return d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
-            .on("end", dragged);
+            .on("end", dragended);
+    }
+
+    private getNodeOfSelectedEdges(): Array<Node> {
+        return [...this.links
+            .filter(edge => edge.isSelected)
+            .data()
+            .reduce((r, v) => { r.add(v.source); r.add(v.target); return r; }, new Set<Node>())];
     }
 
     private manageEdgeLabels(): void {
@@ -131,10 +152,7 @@ export default class EdgeManager {
     }
 
     private moveSeveralSelectedEdge(event: d3.D3DragEvent<any, Edge, Edge>) {
-        this.links
-            .filter(edge => edge.isSelected)
-            .data()
-            .reduce((r, v) => { r.add(v.source); r.add(v.target); return r; }, new Set<Node>())
+        this.getNodeOfSelectedEdges()
             .forEach(node => this._svgManager.nodeManager.moveSingleNode(node, event.dx, event.dy));
     }
 
@@ -143,5 +161,5 @@ export default class EdgeManager {
         this._svgManager.nodeManager.moveSingleNode(subject.target, deltaX, deltaY);
     }
 
-    // #endregion Private Methods (5)
+    // #endregion Private Methods (6)
 }

@@ -139,7 +139,6 @@ export default class NodeManager {
                 myManager.Execute(CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
             })
             UpdateGraphProperties("Node's positions changed");
-            this.refreshPosNodes();
         }
 
         return d3.drag()

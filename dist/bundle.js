@@ -32012,11 +32012,15 @@ exports.default = ArrowManager;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const d3 = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
+const Point_1 = __webpack_require__(/*! ../elements/Point */ "./src/ts/main/graph-gestionnaire/elements/Point.ts");
+const ValueRegisterer_1 = __webpack_require__(/*! ../elements/ValueRegisterer */ "./src/ts/main/graph-gestionnaire/elements/ValueRegisterer.ts");
+const CommandePatern_1 = __webpack_require__(/*! ../../CommandePatern */ "./src/ts/main/CommandePatern.ts");
+const Connection_1 = __webpack_require__(/*! ../../Connection */ "./src/ts/main/Connection.ts");
 /**
  * This class manages all adges in the displayed svg
  */
 class EdgeManager {
-    // #endregion Properties (5)
+    // #endregion Properties (6)
     // #region Constructors (1)
     constructor(svgsManager, graph) {
         this._svgManager = svgsManager;
@@ -32066,7 +32070,7 @@ class EdgeManager {
         this.manageEdgeLabels();
     }
     // #endregion Public Methods (4)
-    // #region Private Methods (5)
+    // #region Private Methods (6)
     color() {
         const scale = d3.scaleOrdinal(d3.schemeCategory10);
         return (d) => scale(d.group);
@@ -32074,9 +32078,12 @@ class EdgeManager {
     drag() {
         const dragstarted = (event) => {
             if (event.subject.isSelected)
-                this.moveSeveralSelectedEdge(event);
+                this.movedNodes = this.getNodeOfSelectedEdges().map(n => { return { oldPosition: new Point_1.default(n.x, n.y), node: n }; });
             else
-                this.moveSingleEdge(event.subject, event.dx, event.dy);
+                this.movedNodes = [
+                    { oldPosition: new Point_1.default(event.subject.source.x, event.subject.source.y), node: event.subject.source },
+                    { oldPosition: new Point_1.default(event.subject.target.x, event.subject.target.y), node: event.subject.target }
+                ];
         };
         const dragged = (event) => {
             if (event.subject.isSelected)
@@ -32085,11 +32092,23 @@ class EdgeManager {
                 this.moveSingleEdge(event.subject, event.dx, event.dy);
             this._svgManager.refreshElementsPosition();
         };
-        // TODO: faire le dragend
+        const dragended = () => {
+            this.movedNodes.forEach((m, i) => {
+                var positions = new ValueRegisterer_1.default([m.oldPosition.x, m.oldPosition.y], [m.node.x, m.node.y], m.node);
+                CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
+            });
+            Connection_1.UpdateGraphProperties("Edge's positions changed");
+        };
         return d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
-            .on("end", dragged);
+            .on("end", dragended);
+    }
+    getNodeOfSelectedEdges() {
+        return [...this.links
+                .filter(edge => edge.isSelected)
+                .data()
+                .reduce((r, v) => { r.add(v.source); r.add(v.target); return r; }, new Set())];
     }
     manageEdgeLabels() {
         this.edges_labels = this.svg.selectAll(".e_label")
@@ -32102,10 +32121,7 @@ class EdgeManager {
         this.refreshEdgeLabels();
     }
     moveSeveralSelectedEdge(event) {
-        this.links
-            .filter(edge => edge.isSelected)
-            .data()
-            .reduce((r, v) => { r.add(v.source); r.add(v.target); return r; }, new Set())
+        this.getNodeOfSelectedEdges()
             .forEach(node => this._svgManager.nodeManager.moveSingleNode(node, event.dx, event.dy));
     }
     moveSingleEdge(subject, deltaX, deltaY) {
@@ -32321,7 +32337,6 @@ class NodeManager {
                 CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
             });
             Connection_1.UpdateGraphProperties("Node's positions changed");
-            this.refreshPosNodes();
         };
         return d3.drag()
             .on("start", dragstarted)
