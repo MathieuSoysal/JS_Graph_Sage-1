@@ -32307,7 +32307,6 @@ class NodeManager {
                 this.movedNodes = this.getSelectedNodes().map(n => { return { oldPosition: new Point_1.default(n.x, n.y), node: n }; });
             else
                 this.movedNodes = [{ oldPosition: new Point_1.default(event.subject.x, event.subject.y), node: event.subject }];
-            this._svgManager.edgeManager.refreshPosEdges();
         };
         const dragged = (event) => {
             if (event.subject.isSelected)
@@ -32323,7 +32322,6 @@ class NodeManager {
                 CommandePatern_1.myManager.Execute(CommandePatern_1.CommandsRepository.MoveNodeCommand(this._graph, positions, i === 0));
             });
             Connection_1.UpdateGraphProperties("Node's positions changed");
-            this._svgManager.edgeManager.refreshPosEdges();
             this.refreshPosNodes();
         };
         return d3.drag()
