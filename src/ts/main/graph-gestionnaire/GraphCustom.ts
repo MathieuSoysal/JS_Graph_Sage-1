@@ -206,7 +206,7 @@ export class GraphCustom {
      * @returns True if nodes are selectioned and connections with other selectioned nodes is succesful, otherwise return false.
      */
     public addEdgesOnSelection(): boolean {
-        let selectedNodes = this.svgsManager.nodeManager.nodes.filter(n => n.isSelected).data();
+        let selectedNodes = this.svgsManager.getSelectedNodes();
         if (selectedNodes.length > 0) {
             for (let i = 0; i < selectedNodes.length; i++) {
                 for (let j = i + 1; j < selectedNodes.length; j++) {
@@ -259,19 +259,12 @@ export class GraphCustom {
      * @returns True if selection contains nodes and loop is added for each node, else false.
      */
     public addLoopOnSelectedNodes(): boolean {
-        if (this.selector.nodesAreSelected()) {
-            let selectedNodes: Node[] = this.selector.selectedNodes;
-            if (selectedNodes.length > 0) {
-                let isFirst = true;
-                for (const selectedNode of selectedNodes) {
-                    this.addLoopOnNode(selectedNode, isFirst);
-                    isFirst = false;
-                }
-                return true;
-            } else {
-                customWarn("No nodes to add loop at on the selection");
-            }
+        let selectedNodes = this.svgsManager.getSelectedNodes();
+        if (selectedNodes.length > 0) {
+            selectedNodes.forEach((node, i) => this.addLoopOnNode(node, i === 0))
+            return true;
         }
+        customWarn("No nodes to add loop at on the selection");
         return false;
     }
 

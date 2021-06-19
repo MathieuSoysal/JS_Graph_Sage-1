@@ -7,6 +7,7 @@ import ArrowManager from './ArrowManager';
 import SelectionRectangle from '../../selector-gestionnaire/SelectionRectangle';
 import SelectorManager from '../../selector-gestionnaire/SelectorManager';
 import { Element } from '../elements/Element';
+import Node from '../elements/Node';
 
 export default class SvgsManager {
     // #region Properties (8)
@@ -93,6 +94,10 @@ export default class SvgsManager {
 
     public getRectangleSelection(): Array<Element> {
         return this._selection.getSelectedElement();
+    }
+
+    public getSelectedNodes(): Array<Node> {
+        return this.nodeManager.nodes.filter(n => n.isSelected).data();
     }
 
     /**
