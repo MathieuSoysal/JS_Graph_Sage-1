@@ -196,7 +196,9 @@ export class GraphCustom {
      * @param newEdge that added to the graph
      */
     public addEdge(newEdge: Edge): void {
-        this.links.push(newEdge);
+        const edgeIsEquals = (edge1: Edge, edge2: Edge) => (edge1.source === edge2.source && edge1.target === edge2.target) || (!this._directed && (edge1.source === edge2.target && edge1.target === edge2.source));
+        if (!this._links.find(e => edgeIsEquals(e, newEdge)))
+            this.links.push(newEdge);
         this.svgsManager.edgeManager.update();
         HtmlArranger.placeBeforeNode("link");
     }
