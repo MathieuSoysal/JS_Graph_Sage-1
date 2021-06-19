@@ -104,7 +104,7 @@ export default class SvgsManager {
      * Refresh the position of each element
      */
     public refreshElementsPosition(): void {
-        this.nodeManager.refreshPosNodes();
+        this.nodeManager.refreshNodesPosition();
         this.loopManager.refreshLoopsPosition();
         this.edgeManager.refreshPosEdges();
     }

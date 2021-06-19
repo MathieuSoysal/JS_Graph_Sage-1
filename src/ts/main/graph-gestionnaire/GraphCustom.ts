@@ -611,7 +611,7 @@ export class GraphCustom {
         let currrentNode = this.nodes.find(n => n === node);
         currrentNode!.x = Pos[0]!;
         currrentNode!.y = Pos[1]!;
-        this.svgsManager.nodeManager.refreshPosNodes();
+        this.svgsManager.nodeManager.refreshNodesPosition();
         this.svgsManager.edgeManager.refreshPosEdges();
         this.svgsManager.loopManager.refreshLoopsPosition();
     }

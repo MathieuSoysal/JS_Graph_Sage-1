@@ -31643,7 +31643,7 @@ class GraphCustom {
         let currrentNode = this.nodes.find(n => n === node);
         currrentNode.x = Pos[0];
         currrentNode.y = Pos[1];
-        this.svgsManager.nodeManager.refreshPosNodes();
+        this.svgsManager.nodeManager.refreshNodesPosition();
         this.svgsManager.edgeManager.refreshPosEdges();
         this.svgsManager.loopManager.refreshLoopsPosition();
     }
@@ -32240,10 +32240,10 @@ const Point_1 = __webpack_require__(/*! ../elements/Point */ "./src/ts/main/grap
  * This class manages all svg nodes in the displayed svg
  */
 class NodeManager {
-    // #endregion Properties (5)
+    // #endregion Properties (7)
     // #region Constructors (1)
     constructor(svgsManager, graph) {
-        // #region Properties (5)
+        // #region Properties (7)
         this.scale = d3.scaleOrdinal(d3.schemeCategory10);
         this._svgManager = svgsManager;
         this.svg = svgsManager.svg;
@@ -32252,20 +32252,31 @@ class NodeManager {
     }
     // #endregion Constructors (1)
     // #region Public Methods (7)
-    moveSeveralSelectedNodes(delatX, delatY) {
+    /**
+     * Move all selected nodes in displayed svg
+     *
+     * @param subject that must be move
+     * @param deltaX the delat of movement in X axe
+     * @param deltaY the delat of movement in Y axe
+     */
+    moveAllSelectedNodes(delatX, delatY) {
         this.getSelectedNodes().forEach(n => { n.x += delatX; n.y += delatY; });
-        this.refreshPosNodes();
+        this.refreshNodesPosition();
     }
-    getSelectedNodes() {
-        return this.nodes.filter(n => n.isSelected).data();
-    }
+    /**
+     * Move a single node in displayed svg
+     *
+     * @param subject that must be move
+     * @param deltaX the delat of movement in X axe
+     * @param deltaY the delat of movement in Y axe
+     */
     moveSingleNode(subject, deltaX, deltaY) {
         subject.x += deltaX;
         subject.y += deltaY;
-        this.refreshPosNodes();
+        this.refreshNodesPosition();
     }
     refreshNodeLabels() {
-        this.node_labels.text(d => d.name != "" ? d.name : "");
+        this.node_labels.text(d => d.name !== "" ? d.name : "");
     }
     /**
      * Updates the style of the selected nodes
@@ -32278,11 +32289,16 @@ class NodeManager {
     /**
      * Updates the positions of the selected nodes
      */
-    refreshPosNodes() {
+    refreshNodesPosition() {
         this.nodes
             .attr("cx", n => n.x)
             .attr("cy", n => n.y);
     }
+    /**
+     * Remove node from displayed svg
+     *
+     * @param node that must be deleted
+     */
     remove(node) {
         this.nodes.filter(n => n === node).remove();
         this.nodes = this.nodes.filter(n => n !== node);
@@ -32309,12 +32325,11 @@ class NodeManager {
         this.manageNodeLabels();
     }
     // #endregion Public Methods (7)
-    // #region Private Methods (3)
+    // #region Private Methods (4)
     color() {
         const scale = d3.scaleOrdinal(d3.schemeCategory10);
         return (d) => scale(d.group);
     }
-    // TODO: look the type of event
     drag() {
         const dragstarted = (event) => {
             this._graph.nodeIsMoved(event.subject.x, event.subject.y);
@@ -32325,11 +32340,10 @@ class NodeManager {
         };
         const dragged = (event) => {
             if (event.subject.isSelected)
-                this.moveSeveralSelectedNodes(event.dx, event.dy);
+                this.moveAllSelectedNodes(event.dx, event.dy);
             else
                 this.moveSingleNode(event.subject, event.dx, event.dy);
-            this._svgManager.edgeManager.refreshPosEdges();
-            this._svgManager.loopManager.refreshLoopsPosition();
+            this._svgManager.refreshElementsPosition();
         };
         const dragended = () => {
             this.movedNodes.forEach((m, i) => {
@@ -32342,6 +32356,9 @@ class NodeManager {
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended);
+    }
+    getSelectedNodes() {
+        return this.nodes.filter(n => n.isSelected).data();
     }
     manageNodeLabels() {
         // Vertex labels
@@ -32438,7 +32455,7 @@ class SvgsManager {
      * Refresh the position of each element
      */
     refreshElementsPosition() {
-        this.nodeManager.refreshPosNodes();
+        this.nodeManager.refreshNodesPosition();
         this.loopManager.refreshLoopsPosition();
         this.edgeManager.refreshPosEdges();
     }

@@ -12,17 +12,19 @@ import Point from '../elements/Point';
  * This class manages all svg nodes in the displayed svg 
  */
 export default class NodeManager {
-    // #region Properties (5)
+    // #region Properties (7)
+
     private readonly scale = d3.scaleOrdinal(d3.schemeCategory10);
+
     private _graph: GraphCustom;
     private _svgManager: SvgsManager;
-    private node_labels: d3.Selection<d3.BaseType, Node, d3.BaseType, unknown>;
     private movedNodes: Array<{ oldPosition: Point, node: Node }>;
+    private node_labels: d3.Selection<d3.BaseType, Node, d3.BaseType, unknown>;
 
     public nodes: d3.Selection<d3.BaseType, Node, d3.BaseType, unknown>;
     public svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>;
 
-    // #endregion Properties (5)
+    // #endregion Properties (7)
 
     // #region Constructors (1)
 
@@ -37,23 +39,33 @@ export default class NodeManager {
 
     // #region Public Methods (7)
 
-    public moveSeveralSelectedNodes(delatX: number, delatY: number) {
+    /**
+     * Move all selected nodes in displayed svg
+     * 
+     * @param subject that must be move
+     * @param deltaX the delat of movement in X axe
+     * @param deltaY the delat of movement in Y axe
+     */
+    public moveAllSelectedNodes(delatX: number, delatY: number) {
         this.getSelectedNodes().forEach(n => { n.x += delatX; n.y += delatY; });
-        this.refreshPosNodes();
+        this.refreshNodesPosition();
     }
 
-    private getSelectedNodes() {
-        return this.nodes.filter(n => n.isSelected).data();
-    }
-
+    /**
+     * Move a single node in displayed svg
+     * 
+     * @param subject that must be move
+     * @param deltaX the delat of movement in X axe
+     * @param deltaY the delat of movement in Y axe
+     */
     public moveSingleNode(subject: Node, deltaX: number, deltaY: number) {
         subject.x += deltaX;
         subject.y += deltaY;
-        this.refreshPosNodes();
+        this.refreshNodesPosition();
     }
 
     public refreshNodeLabels(): void {
-        this.node_labels.text(d => d.name != "" ? d.name : "");
+        this.node_labels.text(d => d.name !== "" ? d.name : "");
     }
 
     /**
@@ -68,12 +80,17 @@ export default class NodeManager {
     /**
      * Updates the positions of the selected nodes
      */
-    public refreshPosNodes(): void {
+    public refreshNodesPosition(): void {
         this.nodes
             .attr("cx", n => n.x)
             .attr("cy", n => n.y);
     }
 
+    /**
+     * Remove node from displayed svg
+     * 
+     * @param node that must be deleted
+     */
     public remove(node: Node) {
         this.nodes.filter(n => n === node).remove();
         this.nodes = this.nodes.filter(n => n !== node);
@@ -107,14 +124,13 @@ export default class NodeManager {
 
     // #endregion Public Methods (7)
 
-    // #region Private Methods (3)
+    // #region Private Methods (4)
 
     private color() {
         const scale = d3.scaleOrdinal(d3.schemeCategory10);
         return (d: Node) => scale(d.group);
     }
 
-    // TODO: look the type of event
     private drag(): (selection: any) => void {
         const dragstarted = (event: D3DragEvent<any, Node, Node>) => {
             this._graph.nodeIsMoved(event.subject.x, event.subject.y);
@@ -126,11 +142,10 @@ export default class NodeManager {
 
         const dragged = (event: D3DragEvent<any, Node, Node>) => {
             if (event.subject.isSelected)
-                this.moveSeveralSelectedNodes(event.dx, event.dy);
+                this.moveAllSelectedNodes(event.dx, event.dy);
             else
                 this.moveSingleNode(event.subject, event.dx, event.dy);
-            this._svgManager.edgeManager.refreshPosEdges();
-            this._svgManager.loopManager.refreshLoopsPosition();
+            this._svgManager.refreshElementsPosition();
         }
 
         const dragended = () => {
@@ -145,6 +160,10 @@ export default class NodeManager {
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended);
+    }
+
+    private getSelectedNodes() {
+        return this.nodes.filter(n => n.isSelected).data();
     }
 
     private manageNodeLabels(): void {
@@ -162,5 +181,5 @@ export default class NodeManager {
         this.refreshNodeLabels();
     }
 
-    // #endregion Private Methods (3)
+    // #endregion Private Methods (4)
 }
