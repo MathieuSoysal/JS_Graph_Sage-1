@@ -617,6 +617,7 @@ export class GraphCustom {
         currrentNode!.y = Pos[1]!;
         this.svgsManager.nodeManager.refreshPosNodes();
         this.svgsManager.edgeManager.refreshPosEdges();
+        this.svgsManager.loopManager.refreshLoopsPosition();
     }
 
     /**

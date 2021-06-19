@@ -31650,6 +31650,7 @@ class GraphCustom {
         currrentNode.y = Pos[1];
         this.svgsManager.nodeManager.refreshPosNodes();
         this.svgsManager.edgeManager.refreshPosEdges();
+        this.svgsManager.loopManager.refreshLoopsPosition();
     }
     /**
      * Updates the old position x and y of a node, with a ValueRegisterer
